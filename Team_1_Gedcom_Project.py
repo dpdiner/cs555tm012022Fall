@@ -41,13 +41,13 @@ def readIndividual(rowList):
         
         # Reads each row and sets the corresponding field in the individual object
         if row[1] == "INDI":
-            newIndiv.identifier = row[2]
+            newIndiv.identifier = row[2].strip()
         elif row[1] == "NAME":
-            newIndiv.name = row[2]
+            newIndiv.name = row[2].strip()
         elif row[1] == "SEX":
-            newIndiv.gender = row[2]
+            newIndiv.gender = row[2].strip()
         elif row[1] == "DEAT":
-            if "Y" in row[2]:
+            if "Y" == row[2].strip():
                 # Begin reading in the death date
                 readingDeath = True
                 newIndiv.alive = False
@@ -58,13 +58,13 @@ def readIndividual(rowList):
             readingBirth = True
         elif int(row[0]) == 2 and row[1] == "DATE":
             if readingBirth:
-                newIndiv.birthday = getDate(row[2])
+                newIndiv.birthday = getDate(row[2].strip())
             elif readingDeath:
-                newIndiv.deathday = getDate(row[2])
+                newIndiv.deathday = getDate(row[2].strip())
         elif row[1] == "FAMS":
-            newIndiv.spouseFam.append(row[2])
+            newIndiv.spouseFam.append(row[2].strip())
         elif row[1] == "FAMC":
-            newIndiv.childFam.append(row[2])
+            newIndiv.childFam.append(row[2].strip())
     
     newIndiv.calculateAge()
     return newIndiv
@@ -85,13 +85,13 @@ def readFamily(rowList):
         
         # Reads each row and sets the corresponding field in the family object    
         if row[1] == "FAM":
-            newFam.identifier = row[2]
+            newFam.identifier = row[2].strip()
         elif row[1] == "HUSB":
-            newFam.husbandId = row[2]
+            newFam.husbandId = row[2].strip()
         elif row[1] == "WIFE":
-            newFam.wifeId = row[2]
+            newFam.wifeId = row[2].strip()
         elif row[1] == "CHIL":
-            newFam.children.append(row[2])
+            newFam.children.append(row[2].strip())
         elif row[1] == "DIV":
             # Begin reading in the divorce date
             readingDivorce = True
@@ -101,10 +101,10 @@ def readFamily(rowList):
             readingMarriage = True
         elif int(row[0]) == 2 and row[1] == "DATE":
             if readingMarriage:
-                newFam.married = getDate(row[2])
+                newFam.married = getDate(row[2].strip())
             elif readingDivorce:
                 newFam.isDivorced = True
-                newFam.divorced = getDate(row[2])
+                newFam.divorced = getDate(row[2].strip())
                 
     return newFam
 
@@ -116,9 +116,11 @@ def printOutput():
     indPT.field_names = ["ID", "NAME", "GENDER", "BIRTHDAY", "AGE", "ALIVE", "DEATH", "CHILD", "SPOUSE"]
     famPT.field_names = ["ID", "MARRIED", "DIVORCED", "HUSBAND ID", "HUSBAND NAME", "WIFE ID", "WIFE NAME", "CHILDREN"]
 
-    for ind in list(individuals.values()):
+    for individual in sorted(individuals.keys()):
+        ind = individuals[individual]
         indPT.add_row([ind.identifier, ind.name, ind.gender, ind.birthday, ind.age, ind.alive, ind.getDeathday(), ind.getChildFam(), ind.getSpouseFam()])
-    for fam in list(families.values()):
+    for family in sorted(families.keys()):
+        fam = families[family]
         famPT.add_row([fam.identifier, fam.married, fam.getIsDivorced(), fam.husbandId, fam.husbandName, fam.wifeId, fam.wifeName, fam.getChildren()])
         
     print("Individuals")
