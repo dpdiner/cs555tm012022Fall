@@ -25,6 +25,10 @@ def getDate(dateString):
 def isTagValid(tag):
     return tag in validTags
 
+# Returns is the first date passed to it is smaller than the second. Second date defaults to todays date
+#def isDateSmallerThanOtherDate(firstDate, secondDate = datetime.date.today()):
+#    return firstDate < secondDate
+
 # takes in a list of Gedcom rows pertaining to an individual and returns an indvidual object
 def readIndividual(rowList):
     newIndiv = individual.individual()
@@ -68,7 +72,22 @@ def readIndividual(rowList):
     
     newIndiv.calculateAge()
     return newIndiv
-    
+
+# Check for errors in data for the individuals
+def errorCheckIndividuals():
+    for individual in list(individuals.value()):
+        if not alive and individual.deathday < individual.birthday:
+            individual.birthday = datetime.datetime(1, 1, 1).date()
+
+# Check for errors for the families
+def errorCheckFamilies():
+    for family in list(families.value()):
+        if isDivorced:
+            if (not individuals[family.husbandId].alive and individuals[family.husbandId].deathDay < family.divorced) or
+                (not individuals[family.wifeId].alive and individuals[family.wifeId].deathDay < family.divorced):
+            family.divorced = datetime.datetime(1776, 7, 4).date()
+            familiy.isDivorced = False
+            
 # takes in a list of Gedcom rows pertaining to an family and returns an family object
 def readFamily(rowList):
     newFam = family.family()
@@ -118,7 +137,7 @@ def printOutput():
 
     for individual in sorted(individuals.keys()):
         ind = individuals[individual]
-        indPT.add_row([ind.identifier, ind.name, ind.gender, ind.birthday, ind.age, ind.alive, ind.getDeathday(), ind.getChildFam(), ind.getSpouseFam()])
+        indPT.add_row([ind.identifier, ind.name, ind.gender, ind.getBirthday, ind.age, ind.alive, ind.getDeathday(), ind.getChildFam(), ind.getSpouseFam()])
     for family in sorted(families.keys()):
         fam = families[family]
         famPT.add_row([fam.identifier, fam.married, fam.getIsDivorced(), fam.husbandId, fam.husbandName, fam.wifeId, fam.wifeName, fam.getChildren()])
@@ -128,7 +147,7 @@ def printOutput():
     print("Families")
     print(famPT)
 
-# Process teh Gedcom file and store it
+# Process the Gedcom file and store it
 def processGedcomFile(file):
 
     # Booleans to keep track of when we are reading a family in and when we are reading an individual
@@ -190,6 +209,10 @@ def processGedcomFile(file):
         for family in families.keys():
             families[family].husbandName = individuals[families[family].husbandId].name
             families[family].wifeName = individuals[families[family].wifeId].name
+            
+        # Run checks
+        errorCheckIndividuals()
+        errorCheckFamilies()
 
 def main():
     if len(sys.argv) == 2:

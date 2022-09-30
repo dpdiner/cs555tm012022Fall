@@ -6,10 +6,10 @@ class individual:
         self.identifier = "N/A"
         self.name = "N/A"
         self.gender = "N/A"
-        self.birthday = datetime.datetime(1776, 7, 4).date()
+        self.birthday = datetime.datetime(1, 1, 1).date()
         self.age = 0
         self.alive = True
-        self.deathday = datetime.datetime(1776, 7, 4).date()
+        self.deathday = datetime.date.today()
         self.childFam = []
         self.spouseFam = []
     
@@ -31,6 +31,12 @@ class individual:
             return "N/A"
         else:
             return str(self.deathday)
+        
+    def getBirthday(self):
+        if self.birthday == datetime.datetime(1, 1, 1).date():
+            return "N/A"
+        else:
+            return str(self.birthday)
             
     def getChildFam(self):
         if self.childFam == []:
