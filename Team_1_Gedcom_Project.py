@@ -221,28 +221,28 @@ def less_than_150_years_old():  # US07: Less Than 150 Years Old
 print(less_than_150_years_old())
 
 #code for birth before marriage of parents
-def birth_before_marriage(table):  # US02: Birth Before Marriage
-    valid_marriage = True
-    notes = []
+# def birth_before_marriage(table):  # US02: Birth Before Marriage
+#     valid_marriage = True
+#     notes = []
 
-    for fam in families:
-        wife_name = families[family].wifeName
-        hubby_name =families[family].husbandName
-        for ind in individuals:
-            if fam.marriage is not None:
-                if wife_name == ind.name or hubby_name == ind.name and fam.marriage < ind.birth:
-                    notes.append("{} has an incorrect birth and/or marriage date.".format(ind.name))
-                    notes.append(
-                        "Birth is: {} and Marriage is: {}".format((ind.birth),(fam.marriage)))
-                    valid_marriage = False
+#     for fam in families:
+#         wife_name = families[family].wifeName
+#         hubby_name =families[family].husbandName
+#         for ind in individuals:
+#             if fam.marriage is not None:
+#                 if wife_name == ind.name or hubby_name == ind.name and fam.marriage < ind.birth:
+#                     notes.append("{} has an incorrect birth and/or marriage date.".format(ind.name))
+#                     notes.append(
+#                         "Birth is: {} and Marriage is: {}".format((ind.birth),(fam.marriage)))
+#                     valid_marriage = False
 
-    if valid_marriage:
-        result = "All birth dates were correct"
-    else:
-        result = "One or more birth/marriage dates were incorrect."
+#     if valid_marriage:
+#         result = "All birth dates were correct"
+#     else:
+#         result = "One or more birth/marriage dates were incorrect."
 
-    print(
-        ["US08", "Birth Before Marriage", "\n".join(notes), valid_marriage, result])
+#     print(
+#         ["US08", "Birth Before Marriage", "\n".join(notes), valid_marriage, result])
 
 
 def main():
