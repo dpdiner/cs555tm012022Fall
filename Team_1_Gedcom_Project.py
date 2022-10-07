@@ -1,4 +1,3 @@
-
 import sys
 import individual
 import family
@@ -105,7 +104,7 @@ def readFamily(rowList):
             elif readingDivorce:
                 newFam.isDivorced = True
                 newFam.divorced = getDate(row[2].strip())
-                
+            
     return newFam
 
 # Print out the individuals and families from the Gedcom file using prettytable
@@ -190,6 +189,61 @@ def processGedcomFile(file):
         for family in families.keys():
             families[family].husbandName = individuals[families[family].husbandId].name
             families[family].wifeName = individuals[families[family].wifeId].name
+
+#code for less than 150 years by Rakesh Balaji.
+def less_than_150_years_old():  # US07: Less Than 150 Years Old
+    correct_age = True
+    notes = []
+    for ind in individuals:
+        if ind.alive is True:
+            
+            diff = datetime.now().date() - ind.birth
+            if (diff.days / 365.24) > 150:
+                notes.append(
+                    "{} is over 150 years old! Birthday is {}.".format(ind.name, ind.birth))
+                correct_age = False
+        else:
+            diff = ind.death - ind.birth
+            if (diff.days / 365.24) > 150:
+                notes.append(
+                    "{} was over 150 years old! Birthday is {} and Death is {}.".format(ind.name, (
+                        ind.birth, ind.getDeathday())))
+                correct_age = False
+
+    if correct_age:
+        result = "Every person is within the right age range."
+    else:
+        result = "One or more individuals are not within the right age range."
+
+    print(
+        ["US08", "Less Than 150 Years Old", "\n".join(notes), correct_age, result])
+
+print(less_than_150_years_old())
+
+#code for birth before marriage of parents
+def birth_before_marriage(table):  # US02: Birth Before Marriage
+    valid_marriage = True
+    notes = []
+
+    for fam in families:
+        wife_name = families[family].wifeName
+        hubby_name =families[family].husbandName
+        for ind in individuals:
+            if fam.marriage is not None:
+                if wife_name == ind.name or hubby_name == ind.name and fam.marriage < ind.birth:
+                    notes.append("{} has an incorrect birth and/or marriage date.".format(ind.name))
+                    notes.append(
+                        "Birth is: {} and Marriage is: {}".format((ind.birth),(fam.marriage)))
+                    valid_marriage = False
+
+    if valid_marriage:
+        result = "All birth dates were correct"
+    else:
+        result = "One or more birth/marriage dates were incorrect."
+
+    print(
+        ["US08", "Birth Before Marriage", "\n".join(notes), valid_marriage, result])
+
 
 def main():
     if len(sys.argv) == 2:
