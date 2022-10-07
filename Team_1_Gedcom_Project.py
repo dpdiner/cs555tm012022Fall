@@ -1,5 +1,8 @@
 
+from re import M
 import sys
+from tkinter.font import families
+from xmlrpc.client import DateTime
 import individual
 import family
 import datetime
@@ -77,6 +80,8 @@ def errorCheckIndividuals(indivs):
     for individual in indivs.values():
         if not individual.alive and individual.deathday < individual.birthday:
             individual.birthday = datetime.datetime(1, 1, 1).date()
+        if individual.age >150:
+            print("Age is more than 150")
     return indivs
 
 # Check for errors for the families
@@ -217,8 +222,31 @@ def processGedcomFile(file):
     # Run checks
     individuals = errorCheckIndividuals(individuals)
     families = errorCheckFamilies(families, individuals)
+    famliyFunc(families,individuals)
+
         
     return [individuals, families]
+
+def famliyFunc(families,individuals):
+    for i in families.values():
+        childKeys = i.children
+        # first_birthday = datetime.date.today()
+        # last_birthday = datetime.datetime(1, 1, 1).date()
+        birthday_dates = []
+        new_birthdate = birthdays + datetime(9, M)
+        for j in childKeys:
+            birthday_dates.append(individuals[j].birthday)
+        for birthdays in birthday_dates:
+            if i.married < birthdays :
+                print("Marriage is less than Birthday")
+            elif i.divorced > new_birthdate:
+                print(" Divorced date is more than 9 months than the birthday")
+
+
+
+
+
+
 
 def main():
     if len(sys.argv) == 2:
