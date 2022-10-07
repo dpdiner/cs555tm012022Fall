@@ -8,8 +8,7 @@ from prettytable import PrettyTable
 validTags = ["INDI", "NAME", "SEX", "BIRT", "DEAT", "FAMC", "MARR", "HUSB", 
              "WIFE", "CHIL", "DIV", "DATE", "HEAD", "TRLR", "NOTE", "FAMS", 
              "FAM"]
-individuals = {}
-families = {}
+
 
 # takes in the date string used in a Gedcom file and returns a date object of that date
 def getDate(dateString):
@@ -74,19 +73,21 @@ def readIndividual(rowList):
     return newIndiv
 
 # Check for errors in data for the individuals
-def errorCheckIndividuals():
-    for individual in list(individuals.value()):
-        if not alive and individual.deathday < individual.birthday:
+def errorCheckIndividuals(indivs):
+    for individual in indivs.values():
+        if not individual.alive and individual.deathday < individual.birthday:
             individual.birthday = datetime.datetime(1, 1, 1).date()
+    return indivs
 
 # Check for errors for the families
-def errorCheckFamilies():
-    for family in list(families.value()):
-        if isDivorced:
-            if (not individuals[family.husbandId].alive and individuals[family.husbandId].deathDay < family.divorced) or
-                (not individuals[family.wifeId].alive and individuals[family.wifeId].deathDay < family.divorced):
-            family.divorced = datetime.datetime(1776, 7, 4).date()
-            familiy.isDivorced = False
+def errorCheckFamilies(fams, indivs):
+    for family in fams.values():
+        if family.isDivorced:
+            if ((not indivs[family.husbandId].alive and indivs[family.husbandId].deathday < family.divorced) or
+                (not indivs[family.wifeId].alive and indivs[family.wifeId].deathday < family.divorced)):
+                family.divorced = datetime.datetime(1776, 7, 4).date()
+                family.isDivorced = False
+    return fams
             
 # takes in a list of Gedcom rows pertaining to an family and returns an family object
 def readFamily(rowList):
@@ -128,7 +129,7 @@ def readFamily(rowList):
     return newFam
 
 # Print out the individuals and families from the Gedcom file using prettytable
-def printOutput():
+def printOutput(individuals, families):
     indPT = PrettyTable()
     famPT = PrettyTable()
 
@@ -137,7 +138,7 @@ def printOutput():
 
     for individual in sorted(individuals.keys()):
         ind = individuals[individual]
-        indPT.add_row([ind.identifier, ind.name, ind.gender, ind.getBirthday, ind.age, ind.alive, ind.getDeathday(), ind.getChildFam(), ind.getSpouseFam()])
+        indPT.add_row([ind.identifier, ind.name, ind.gender, ind.getBirthday(), ind.age, ind.alive, ind.getDeathday(), ind.getChildFam(), ind.getSpouseFam()])
     for family in sorted(families.keys()):
         fam = families[family]
         famPT.add_row([fam.identifier, fam.married, fam.getIsDivorced(), fam.husbandId, fam.husbandName, fam.wifeId, fam.wifeName, fam.getChildren()])
@@ -149,6 +150,9 @@ def printOutput():
 
 # Process the Gedcom file and store it
 def processGedcomFile(file):
+    
+    individuals = {}
+    families = {}
 
     # Booleans to keep track of when we are reading a family in and when we are reading an individual
     readingIndividual = False
@@ -210,16 +214,18 @@ def processGedcomFile(file):
             families[family].husbandName = individuals[families[family].husbandId].name
             families[family].wifeName = individuals[families[family].wifeId].name
             
-        # Run checks
-        errorCheckIndividuals()
-        errorCheckFamilies()
+    # Run checks
+    individuals = errorCheckIndividuals(individuals)
+    families = errorCheckFamilies(families, individuals)
+        
+    return [individuals, families]
 
 def main():
     if len(sys.argv) == 2:
         try:
             file = open(sys.argv[1], "r")
-            processGedcomFile(file)
-            printOutput()
+            output = processGedcomFile(file)
+            printOutput(output[0], output[1])
         except OSError:
             print("Error opening GEDCOM FILE.")
     else:
