@@ -13,6 +13,10 @@ class family:
         self.wifeId = "N/A"
         self.wifeName = "N/A"
         self.children = []
+        self.Marriagebefordivorce = False
+        self.Marriagebedoredeath = False
+        self.wdday = datetime.datetime(1776, 7, 4).date()
+        self.Hdday = datetime.datetime(1776, 7, 4).date()
     
     def getIsDivorced(self):
         if self.isDivorced:
