@@ -8,6 +8,13 @@ validTags = ["INDI", "NAME", "SEX", "BIRT", "DEAT", "FAMC", "MARR", "HUSB",
              "WIFE", "CHIL", "DIV", "DATE", "HEAD", "TRLR", "NOTE", "FAMS", 
              "FAM"]
 
+def printErrorInfo(story, Id, message):
+    if "I" in Id:
+        itemAffected = "INDVIDUAL"
+    else:
+        itemAffected = "FAMILY"
+        
+    print("ERROR: " + itemAffected + ": " + story + ": " + Id + ": " + message)
 
 # takes in the date string used in a Gedcom file and returns a date object of that date
 def getDate(dateString):
@@ -79,35 +86,35 @@ def readIndividual(rowList):
 
 # Check for errors in data for the individuals
 def errorCheckIndividuals(indivs):
-    try:
-        for individual in indivs.values():
-            if ((not individual.alive and individual.deathday < individual.birthday) ):
-                individual.birthday = datetime.datetime(1, 1, 1).date()
-            if individual.age >150:
-                print("Age is more than 150")
-            if( isDateGreaterThanCurrentDate(individual.birthday)):
-                raise Exception("Invalid Birth date")
-            if individual.deathday > datetime.date.today():
-                raise Exception("Invalid Death date")
-        return indivs
-    except Exception as e:
-        print(e)
+    for individual in indivs.values():
+        if ((not individual.alive and individual.deathday < individual.birthday) ):
+            printErrorInfo("US03", individual.identifier, "The birthday is before the deathday")
+        if individual.age >150:
+            printErrorInfo("US07", individual.identifier, "The person is over 150")
+        if( isDateGreaterThanCurrentDate(individual.birthday)):
+            printErrorInfo("US01", individual.identifier, "The birthday is before the current day")
+        if individual.deathday > datetime.date.today():
+            printErrorInfo("US01", individual.identifier, "The deathday is before the current day")
+    return indivs
 
 # Check for errors for the families
 def errorCheckFamilies(fams, indivs):
-    try:
-        for family in fams.values():
-            if family.isDivorced:
-                if ((not indivs[family.husbandId].alive and indivs[family.husbandId].deathday < family.divorced) or
-                    (not indivs[family.wifeId].alive and indivs[family.wifeId].deathday < family.divorced)):
-                    family.divorced = datetime.datetime(1776, 7, 4).date()
-                    family.isDivorced = False
-                if isDateGreaterThanCurrentDate(family.divorced): raise Exception("Invalid Divorce date")
-            if isDateGreaterThanCurrentDate(family.married): raise Exception("Invalid Marriage date")
-            if indivs[family.husbandId].birthday > family.married or indivs[family.wifeId].birthday > family.married : raise Exception("Invalid Family")
-        return fams
-    except Exception as e:
-        print(e)
+    for family in fams.values():
+        if family.isDivorced:
+            if (not indivs[family.husbandId].alive and indivs[family.husbandId].deathday < family.divorced):
+                printErrorInfo("US06", family.identifier, "The husband deathday is before the divorce day")
+            elif (not indivs[family.wifeId].alive and indivs[family.wifeId].deathday < family.divorced):
+                printErrorInfo("US06", family.identifier, "The wife deathday is before the divorce day")
+            if isDateGreaterThanCurrentDate(family.divorced): 
+                printErrorInfo("US01", family.identifier, "The divorce day is before the current day")
+        if isDateGreaterThanCurrentDate(family.married):
+            printErrorInfo("US01", family.identifier, "The marriage day is before the current day")
+        if indivs[family.husbandId].birthday > family.married:
+            printErrorInfo("US02", family.identifier, "The husband birthday is before the marriage day")
+        elif indivs[family.wifeId].birthday > family.married :
+            printErrorInfo("US02", family.identifier, "The wife birthday is before the marriage day")
+    return fams
+
             
 # takes in a list of Gedcom rows pertaining to an family and returns an family object
 def readFamily(rowList):
@@ -145,10 +152,6 @@ def readFamily(rowList):
             elif readingDivorce:
                 newFam.isDivorced = True
                 newFam.divorced = getDate(row[2].strip())
-            if newFam.married > newFam.divorced:
-                newFam.isDivorced = True
-            elif newFam.married < newFam.divorced:
-                newFam.isDivorced = False
                 
     return newFam
 
@@ -245,6 +248,7 @@ def processGedcomFile(file):
                 families[family].Marriagebedoredeath = True
             else:
                 families[family].Marriagebedoredeath = False
+                printErrorInfo("US05", families[family].identifier, "One of the couple died before the marriage")
             
     # Run checks
     individuals = errorCheckIndividuals(individuals)
@@ -257,19 +261,16 @@ def processGedcomFile(file):
 def famliyFunc(families,individuals):
     for i in families.values():
         childKeys = i.children
-        # first_birthday = datetime.date.today()
-        # last_birthday = datetime.datetime(1, 1, 1).date()
         birthday_dates = []
         for j in childKeys:
             birthday_dates.append(individuals[j].birthday)
         for birthdays in birthday_dates:
             if i.married > birthdays :
-                print("Birthday is before Marriage")
+                printErrorInfo("US08", j, "Birthday of child is before the marriage of their parents")
 
-            #new_birthdate = birthdays + datetime(9, 'M')
             new_div_date = datetime.date(i.divorced.year + int(i.divorced.month / 12), (i.divorced.month + 9) %12, i.divorced.day)
             if new_div_date < birthdays and i.isDivorced:
-                print(" Birthday is more than 9 months after Divorce")
+                printErrorInfo("US08", j, "Birthday of child is after the divorce of their parents")
 
 def main():
     if len(sys.argv) == 2:
