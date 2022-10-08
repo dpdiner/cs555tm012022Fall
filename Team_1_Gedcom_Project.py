@@ -1,8 +1,4 @@
-
-from re import M
 import sys
-from tkinter.font import families
-from xmlrpc.client import DateTime
 import individual
 import family
 import datetime
