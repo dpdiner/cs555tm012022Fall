@@ -233,14 +233,16 @@ def famliyFunc(families,individuals):
         # first_birthday = datetime.date.today()
         # last_birthday = datetime.datetime(1, 1, 1).date()
         birthday_dates = []
-        new_birthdate = birthdays + datetime(9, M)
         for j in childKeys:
             birthday_dates.append(individuals[j].birthday)
         for birthdays in birthday_dates:
-            if i.married < birthdays :
-                print("Marriage is less than Birthday")
-            elif i.divorced > new_birthdate:
-                print(" Divorced date is more than 9 months than the birthday")
+            if i.married > birthdays :
+                print("Birthday is before Marriage")
+
+            #new_birthdate = birthdays + datetime(9, 'M')
+            new_div_date = datetime.date(i.divorced.year + int(i.divorced.month / 12), (i.divorced.month + 9) %12, i.divorced.day)
+            if new_div_date < birthdays and i.isDivorced:
+                print(" Birthday is more than 9 months after Divorce")
 
 
 
