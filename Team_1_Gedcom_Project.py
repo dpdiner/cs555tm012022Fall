@@ -1,4 +1,3 @@
-
 import sys
 import individual
 import family
@@ -144,6 +143,10 @@ def readFamily(rowList):
             elif readingDivorce:
                 newFam.isDivorced = True
                 newFam.divorced = getDate(row[2].strip())
+            if newFam.married > newFam.divorced:
+                newFam.isDivorced = True
+            elif newFam.married < newFam.divorced:
+                newFam.isDivorced = False
                 
     return newFam
 
@@ -153,14 +156,14 @@ def printOutput(individuals, families):
     famPT = PrettyTable()
 
     indPT.field_names = ["ID", "NAME", "GENDER", "BIRTHDAY", "AGE", "ALIVE", "DEATH", "CHILD", "SPOUSE"]
-    famPT.field_names = ["ID", "MARRIED", "DIVORCED", "HUSBAND ID", "HUSBAND NAME", "WIFE ID", "WIFE NAME", "CHILDREN"]
+    famPT.field_names = ["ID", "MARRIED", "DIVORCED", "MARRIED BEFORE DIVORCE","MARRIED BEFORE DEATH","HUSBAND ID", "HUSBAND NAME", "WIFE ID", "WIFE NAME", "CHILDREN"]
 
     for individual in sorted(individuals.keys()):
         ind = individuals[individual]
         indPT.add_row([ind.identifier, ind.name, ind.gender, ind.getBirthday(), ind.age, ind.alive, ind.getDeathday(), ind.getChildFam(), ind.getSpouseFam()])
     for family in sorted(families.keys()):
         fam = families[family]
-        famPT.add_row([fam.identifier, fam.married, fam.getIsDivorced(), fam.husbandId, fam.husbandName, fam.wifeId, fam.wifeName, fam.getChildren()])
+        famPT.add_row([fam.identifier, fam.married, fam.getIsDivorced(), fam.Marriagebefordivorce,fam.Marriagebedoredeath,fam.husbandId, fam.husbandName, fam.wifeId, fam.wifeName, fam.getChildren()])
         
     print("Individuals")
     print(indPT)
@@ -232,6 +235,14 @@ def processGedcomFile(file):
         for family in families.keys():
             families[family].husbandName = individuals[families[family].husbandId].name
             families[family].wifeName = individuals[families[family].wifeId].name
+            families[family].wddate = individuals[families[family].wifeId].deathday
+            families[family].Hddate = individuals[families[family].husbandId].deathday
+            if ((families[family].married < families[family].wddate) or (families[family].married < families[family].Hddate)):
+                families[family].Marriagebedoredeath = True
+            elif ((families[family].wddate == families[family].Hddate)):
+                families[family].Marriagebedoredeath = True
+            else:
+                families[family].Marriagebedoredeath = False
             
     # Run checks
     individuals = errorCheckIndividuals(individuals)
@@ -240,16 +251,19 @@ def processGedcomFile(file):
     return [individuals, families]
 
 def main():
-    if len(sys.argv) == 2:
+    #if len(sys.argv) == 2:
         try:
-            file = open(sys.argv[1], "r")
+            file = open('Team_1_Gedcom_Project_Input.ged', "r")
             output = processGedcomFile(file)
             printOutput(output[0], output[1])
         except OSError:
             print("Error opening GEDCOM FILE.")
-    else:
-        print("Error in number of arguments. Please provide the name of one GEDCOM file.")
+   # else:
+    #    print("Error in number of arguments. Please provide the name of one GEDCOM file.")
     
     
 if __name__ == "__main__":
     main()
+            
+                
+    #return newFam
