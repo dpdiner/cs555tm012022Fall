@@ -1,5 +1,4 @@
 import datetime
-
 class family:
 
     def __init__(self):
@@ -19,9 +18,9 @@ class family:
     
     def getIsDivorced(self):
         if self.isDivorced:
-            return "N/A"
-        else:
             return self.divorced
+        else:
+            return "N/A"
     
     def getChildren(self):
         if self.children == []:
@@ -32,4 +31,3 @@ class family:
                 childStr = childStr + child + ", "
             childStr = childStr[:-2]
             return childStr + "}"
-       
