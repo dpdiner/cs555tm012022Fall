@@ -24,6 +24,12 @@ def getDate(dateString):
 def isTagValid(tag):
     return tag in validTags
 
+
+
+def isDateGreaterThanCurrentDate(date):
+    currentDate = datetime.date.today()
+    return date > currentDate
+
 # Returns is the first date passed to it is smaller than the second. Second date defaults to todays date
 #def isDateSmallerThanOtherDate(firstDate, secondDate = datetime.date.today()):
 #    return firstDate < secondDate
@@ -74,20 +80,33 @@ def readIndividual(rowList):
 
 # Check for errors in data for the individuals
 def errorCheckIndividuals(indivs):
-    for individual in indivs.values():
-        if not individual.alive and individual.deathday < individual.birthday:
-            individual.birthday = datetime.datetime(1, 1, 1).date()
-    return indivs
+    try:
+        for individual in indivs.values():
+            if ((not individual.alive and individual.deathday < individual.birthday) ):
+                individual.birthday = datetime.datetime(1, 1, 1).date()
+            if( isDateGreaterThanCurrentDate(individual.birthday)):
+                raise Exception("Invalid Birth date")
+            if individual.deathday > datetime.date.today():
+                raise Exception("Invalid Death date")
+        return indivs
+    except Exception as e:
+        print(e)
 
 # Check for errors for the families
 def errorCheckFamilies(fams, indivs):
-    for family in fams.values():
-        if family.isDivorced:
-            if ((not indivs[family.husbandId].alive and indivs[family.husbandId].deathday < family.divorced) or
-                (not indivs[family.wifeId].alive and indivs[family.wifeId].deathday < family.divorced)):
-                family.divorced = datetime.datetime(1776, 7, 4).date()
-                family.isDivorced = False
-    return fams
+    try:
+        for family in fams.values():
+            if family.isDivorced:
+                if ((not indivs[family.husbandId].alive and indivs[family.husbandId].deathday < family.divorced) or
+                    (not indivs[family.wifeId].alive and indivs[family.wifeId].deathday < family.divorced)):
+                    family.divorced = datetime.datetime(1776, 7, 4).date()
+                    family.isDivorced = False
+                if isDateGreaterThanCurrentDate(family.divorced): raise Exception("Invalid Divorce date")
+            if isDateGreaterThanCurrentDate(family.married): raise Exception("Invalid Marriage date")
+            if indivs[family.husbandId].birthday > family.married or indivs[family.wifeId].birthday > family.married : raise Exception("Invalid Family")
+        return fams
+    except Exception as e:
+        print(e)
             
 # takes in a list of Gedcom rows pertaining to an family and returns an family object
 def readFamily(rowList):
