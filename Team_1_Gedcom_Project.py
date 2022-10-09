@@ -254,6 +254,7 @@ def processGedcomFile(file):
     individuals = errorCheckIndividuals(individuals)
     families = errorCheckFamilies(families, individuals)
     famliyFunc(families,individuals)
+    US10MarriedAfter14(families, individuals)
 
         
     return [individuals, families]
@@ -271,6 +272,20 @@ def famliyFunc(families,individuals):
             new_div_date = datetime.date(i.divorced.year + int(i.divorced.month / 12), (i.divorced.month + 9) %12, i.divorced.day)
             if new_div_date < birthdays and i.isDivorced:
                 printErrorInfo("US08", j, "Birthday of child is after the divorce of their parents")
+
+def US10MarriedAfter14(families, individuals):
+    for family in families.values():
+        husbandBirthday = individuals[family.husbandId].birthday
+        wifeBirthday = individuals[family.wifeId].birthday
+        
+        husbandBirthdayPlus14 = datetime.date(husbandBirthday.year + 14, husbandBirthday.month, husbandBirthday.day)
+        wifeBirthdayPlus14 = datetime.date(wifeBirthday.year + 14, wifeBirthday.month, wifeBirthday.day)
+        
+        if husbandBirthdayPlus14 > family.married:
+            printErrorInfo("US10", family.identifier, "The husband was less than 14 years old at their wedding day")
+        if wifeBirthdayPlus14 > family.married:
+            printErrorInfo("US10", family.identifier, "The wife was less than 14 years old at their wedding day")
+            
 
 def main():
     if len(sys.argv) == 2:
