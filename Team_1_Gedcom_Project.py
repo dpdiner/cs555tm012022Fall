@@ -88,13 +88,13 @@ def readIndividual(rowList):
 def errorCheckIndividuals(indivs):
     for individual in indivs.values():
         if ((not individual.alive and individual.deathday < individual.birthday) ):
-            printErrorInfo("US03", individual.identifier, "The birthday is before the deathday")
+            printErrorInfo("US03", individual.identifier, "The birthday is after the deathday")
         if individual.age >150:
             printErrorInfo("US07", individual.identifier, "The person is over 150")
         if( isDateGreaterThanCurrentDate(individual.birthday)):
-            printErrorInfo("US01", individual.identifier, "The birthday is before the current day")
+            printErrorInfo("US01", individual.identifier, "The birthday is after the current day")
         if individual.deathday > datetime.date.today():
-            printErrorInfo("US01", individual.identifier, "The deathday is before the current day")
+            printErrorInfo("US01", individual.identifier, "The deathday is after the current day")
     return indivs
 
 # Check for errors for the families
@@ -106,13 +106,13 @@ def errorCheckFamilies(fams, indivs):
             elif (not indivs[family.wifeId].alive and indivs[family.wifeId].deathday < family.divorced):
                 printErrorInfo("US06", family.identifier, "The wife deathday is before the divorce day")
             if isDateGreaterThanCurrentDate(family.divorced): 
-                printErrorInfo("US01", family.identifier, "The divorce day is before the current day")
+                printErrorInfo("US01", family.identifier, "The divorce day is after the current day")
         if isDateGreaterThanCurrentDate(family.married):
-            printErrorInfo("US01", family.identifier, "The marriage day is before the current day")
+            printErrorInfo("US01", family.identifier, "The marriage day is after the current day")
         if indivs[family.husbandId].birthday > family.married:
-            printErrorInfo("US02", family.identifier, "The husband birthday is before the marriage day")
+            printErrorInfo("US02", family.identifier, "The husband birthday is after the marriage day")
         elif indivs[family.wifeId].birthday > family.married :
-            printErrorInfo("US02", family.identifier, "The wife birthday is before the marriage day")
+            printErrorInfo("US02", family.identifier, "The wife birthday is after the marriage day")
     return fams
 
             
@@ -255,6 +255,7 @@ def processGedcomFile(file):
     families = errorCheckFamilies(families, individuals)
     famliyFunc(families,individuals)
     US10MarriedAfter14(families, individuals)
+    US18SiblingsSHouldNotMarry(families, individuals)
 
         
     return [individuals, families]
@@ -286,6 +287,12 @@ def US10MarriedAfter14(families, individuals):
         if wifeBirthdayPlus14 > family.married:
             printErrorInfo("US10", family.identifier, "The wife was less than 14 years old at their wedding day")
             
+def US18SiblingsSHouldNotMarry(families, individuals):
+    for family in families.values():
+        for parentFam in families.values():
+            if (family.husbandId in parentFam.children) and (family.wifeId in parentFam.children):
+                printErrorInfo("US18", parentFam.identifier, "Two of the children in this family are married to each other")
+                
 
 def main():
     if len(sys.argv) == 2:
