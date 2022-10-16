@@ -161,14 +161,14 @@ def printOutput(individuals, families):
     famPT = PrettyTable()
 
     indPT.field_names = ["ID", "NAME", "GENDER", "BIRTHDAY", "AGE", "ALIVE", "DEATH", "CHILD", "SPOUSE"]
-    famPT.field_names = ["ID", "MARRIED", "DIVORCED", "MARRIED BEFORE DIVORCE","MARRIED BEFORE DEATH","HUSBAND ID", "HUSBAND NAME", "WIFE ID", "WIFE NAME", "CHILDREN"]
+    famPT.field_names = ["ID", "MARRIED", "DIVORCED", "MARRIED BEFORE DIVORCE","MARRIED BEFORE DEATH","Child's Birth before death","HUSBAND ID", "HUSBAND NAME", "WIFE ID", "WIFE NAME", "CHILDREN"]
 
     for individual in sorted(individuals.keys()):
         ind = individuals[individual]
         indPT.add_row([ind.identifier, ind.name, ind.gender, ind.getBirthday(), ind.age, ind.alive, ind.getDeathday(), ind.getChildFam(), ind.getSpouseFam()])
     for family in sorted(families.keys()):
         fam = families[family]
-        famPT.add_row([fam.identifier, fam.married, fam.getIsDivorced(), fam.Marriagebefordivorce,fam.Marriagebedoredeath,fam.husbandId, fam.husbandName, fam.wifeId, fam.wifeName, fam.getChildren()])
+        famPT.add_row([fam.identifier, fam.married, fam.getIsDivorced(), fam.Marriagebefordivorce,fam.Marriagebedoredeath,fam.childbdate,fam.husbandId, fam.husbandName, fam.wifeId, fam.wifeName, fam.getChildren()])
         
     print("Individuals")
     print(indPT)
@@ -235,20 +235,40 @@ def processGedcomFile(file):
         
         if isTagValid(tag):
             linesList.append([level, tag, arguments])
-        
+
+
         # Add the parents names to the families
         for family in families.keys():
             families[family].husbandName = individuals[families[family].husbandId].name
             families[family].wifeName = individuals[families[family].wifeId].name
             families[family].wddate = individuals[families[family].wifeId].deathday
+            wifedeathdate = individuals[families[family].wifeId].deathday
             families[family].Hddate = individuals[families[family].husbandId].deathday
+            husbanddeathdate = individuals[families[family].husbandId].deathday
             if ((families[family].married < families[family].wddate) or (families[family].married < families[family].Hddate)):
+
                 families[family].Marriagebedoredeath = True
             elif ((families[family].wddate == families[family].Hddate)):
                 families[family].Marriagebedoredeath = True
             else:
                 families[family].Marriagebedoredeath = False
                 printErrorInfo("US05", families[family].identifier, "One of the couple died before the marriage")
+            for family in families.values():
+              familyID = family.identifier
+              husbanddeathday = individuals[family.husbandId].deathday
+              print(husbanddeathdate)
+              wifedeathday = individuals[family.wifeId].deathday
+              for child in family.children:
+               # print(child)
+                #print(individuals[child].birthday)
+                #print(husbanddeathdate)   
+                if(husbanddeathdate  <= individuals[child].birthday) and (wifedeathdate <= individuals[child].birthday):
+                 # print(True)
+                  family.childbdate = True
+                elif(husbanddeathdate  < wifedeathdate ):
+                 # print(True)
+                  family.childbdate = True
+
             
     # Run checks
     individuals = errorCheckIndividuals(individuals)
@@ -293,18 +313,20 @@ def US18SiblingsSHouldNotMarry(families, individuals):
             if (family.husbandId in parentFam.children) and (family.wifeId in parentFam.children):
                 printErrorInfo("US18", parentFam.identifier, "Two of the children in this family are married to each other")
                 
-
 def main():
-    if len(sys.argv) == 2:
+    #if len(sys.argv) == 2:
         try:
-            file = open(sys.argv[1], "r")
+            file = open('Team_1_Gedcom_Project_Input.ged', "r")
             output = processGedcomFile(file)
             printOutput(output[0], output[1])
         except OSError:
             print("Error opening GEDCOM FILE.")
-    else:
-        print("Error in number of arguments. Please provide the name of one GEDCOM file.")
+   # else:
+    #    print("Error in number of arguments. Please provide the name of one GEDCOM file.")
     
     
 if __name__ == "__main__":
     main()
+            
+                
+    #return newFam
