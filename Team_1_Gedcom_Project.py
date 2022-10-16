@@ -1,8 +1,10 @@
+from pickle import FALSE
 import sys
 import individual
 import family
 import datetime
 from prettytable import PrettyTable
+from dateutil.relativedelta import relativedelta
 
 validTags = ["INDI", "NAME", "SEX", "BIRT", "DEAT", "FAMC", "MARR", "HUSB", 
              "WIFE", "CHIL", "DIV", "DATE", "HEAD", "TRLR", "NOTE", "FAMS", 
@@ -85,7 +87,7 @@ def readIndividual(rowList):
     return newIndiv
 
 # Check for errors in data for the individuals
-def errorCheckIndividuals(indivs):
+def errorCheckIndividuals(indivs, fams):
     for individual in indivs.values():
         if ((not individual.alive and individual.deathday < individual.birthday) ):
             printErrorInfo("US03", individual.identifier, "The birthday is after the deathday")
@@ -95,6 +97,8 @@ def errorCheckIndividuals(indivs):
             printErrorInfo("US01", individual.identifier, "The birthday is after the current day")
         if individual.deathday > datetime.date.today():
             printErrorInfo("US01", individual.identifier, "The deathday is after the current day")
+        if(isIndividualInBigamy(individual, fams)):
+            printErrorInfo("US11", individual.name, "Bigamy exists for this individual")
     return indivs
 
 # Check for errors for the families
@@ -113,6 +117,7 @@ def errorCheckFamilies(fams, indivs):
             printErrorInfo("US02", family.identifier, "The husband birthday is after the marriage day")
         elif indivs[family.wifeId].birthday > family.married :
             printErrorInfo("US02", family.identifier, "The wife birthday is after the marriage day")
+        elif(areParentsOlder(family, indivs)): printErrorInfo("US12", family.identifier, "Parents are older than child")
     return fams
 
             
@@ -271,7 +276,7 @@ def processGedcomFile(file):
 
             
     # Run checks
-    individuals = errorCheckIndividuals(individuals)
+    individuals = errorCheckIndividuals(individuals, families)
     families = errorCheckFamilies(families, individuals)
     famliyFunc(families,individuals)
     US10MarriedAfter14(families, individuals)
@@ -307,12 +312,35 @@ def US10MarriedAfter14(families, individuals):
         if wifeBirthdayPlus14 > family.married:
             printErrorInfo("US10", family.identifier, "The wife was less than 14 years old at their wedding day")
             
+def isIndividualInBigamy(indiv, families):
+    if(len(indiv.spouseFam)>1):
+        isAlreadyMarried = False
+        for spouse in indiv.spouseFam:
+            if(families[spouse].isDivorced == False):
+                if(isAlreadyMarried == False):
+                    isAlreadyMarried = True
+                else: return True
+        return False
+
+def areParentsOlder(family, indivs):
+    fatherBirthDate = indivs[family.husbandId].birthday
+    motherBirthDate = indivs[family.wifeId].birthday
+    for child in family.children:
+        childBirthDate = indivs[child].birthday
+        time_difference = relativedelta( childBirthDate, fatherBirthDate)
+        fatherDiff= time_difference.years
+        time_difference = relativedelta(childBirthDate, motherBirthDate)
+        motherDiff = time_difference.years
+        if fatherDiff>80 or motherDiff>60:return True
+    return False
+
+               
 def US18SiblingsSHouldNotMarry(families, individuals):
     for family in families.values():
         for parentFam in families.values():
             if (family.husbandId in parentFam.children) and (family.wifeId in parentFam.children):
                 printErrorInfo("US18", parentFam.identifier, "Two of the children in this family are married to each other")
-                
+                 
 def main():
     #if len(sys.argv) == 2:
         try:
