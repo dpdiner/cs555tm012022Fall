@@ -1,3 +1,4 @@
+from curses import flash
 import sys
 import individual
 import family
@@ -219,7 +220,8 @@ def processGedcomFile(file):
     individuals = errorCheckIndividuals(individuals)
     families = errorCheckFamilies(families, individuals)
     famliyFunc(families,individuals)
-
+    listLivMarried(families,individuals)
+    listLivingSingle(families, individuals)
         
     return [individuals, families]
 
@@ -240,11 +242,25 @@ def famliyFunc(families,individuals):
             if new_div_date < birthdays and i.isDivorced:
                 print(" Birthday is more than 9 months after Divorce")
 
-
-
-
-
-
+#User story for List living married
+def listLivMarried(families,individuals):
+    print("#############User story for list living married#################")
+    print("The members who are living and married are:")
+    for listAlive in individuals.values():
+        if listAlive.alive == True:
+            aliveMarried = listAlive.spouseFam
+            if len(aliveMarried) !=0:
+                print(listAlive.name)
+#User story for List living single
+def listLivingSingle(families,individuals):
+    print("###########User story for living single#############")
+    print("The members who are living and single are:")
+    for listAliveSingle in individuals.values():
+        if listAliveSingle.alive == True:
+            listSingle = listAliveSingle.spouseFam
+            if len(listSingle) == 0:
+                print(listAliveSingle.name)
+    
 
 def main():
     if len(sys.argv) == 2:
