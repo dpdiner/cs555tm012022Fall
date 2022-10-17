@@ -1,4 +1,3 @@
-from pickle import FALSE
 import sys
 import individual
 import family
@@ -261,31 +260,26 @@ def processGedcomFile(file):
             for family in families.values():
               familyID = family.identifier
               husbanddeathday = individuals[family.husbandId].deathday
-              print(husbanddeathdate)
               wifedeathday = individuals[family.wifeId].deathday
               for child in family.children:
-               # print(child)
-                #print(individuals[child].birthday)
-                #print(husbanddeathdate)   
                 if(husbanddeathdate  <= individuals[child].birthday) and (wifedeathdate <= individuals[child].birthday):
-                 # print(True)
                   family.childbdate = True
                 elif(husbanddeathdate  < wifedeathdate ):
-                 # print(True)
                   family.childbdate = True
 
             
     # Run checks
     individuals = errorCheckIndividuals(individuals, families)
     families = errorCheckFamilies(families, individuals)
-    famliyFunc(families,individuals)
+    familyFunc(families,individuals)
+    listLivMarried(families,individuals)
+    listLivingSingle(families, individuals)
     US10MarriedAfter14(families, individuals)
     US18SiblingsSHouldNotMarry(families, individuals)
-
         
     return [individuals, families]
 
-def famliyFunc(families,individuals):
+def familyFunc(families,individuals):
     for i in families.values():
         childKeys = i.children
         birthday_dates = []
@@ -299,6 +293,26 @@ def famliyFunc(families,individuals):
             if new_div_date < birthdays and i.isDivorced:
                 printErrorInfo("US08", j, "Birthday of child is after the divorce of their parents")
 
+#User story for List living married
+def listLivMarried(families,individuals):
+    print("#############User story 30 for list living married#################")
+    print("The members who are living and married are:")
+    for listAlive in individuals.values():
+        if listAlive.alive == True:
+            aliveMarried = listAlive.spouseFam
+            if len(aliveMarried) !=0:
+                print(listAlive.name)
+                
+#User story for List living single
+def listLivingSingle(families,individuals):
+    print("###########User story 31 for living single#############")
+    print("The members who are living and single are:")
+    for listAliveSingle in individuals.values():
+        if listAliveSingle.alive == True:
+            listSingle = listAliveSingle.spouseFam
+            if len(listSingle) == 0:
+                print(listAliveSingle.name)
+  
 def US10MarriedAfter14(families, individuals):
     for family in families.values():
         husbandBirthday = individuals[family.husbandId].birthday
@@ -333,7 +347,6 @@ def areParentsOlder(family, indivs):
         motherDiff = time_difference.years
         if fatherDiff>80 or motherDiff>60:return True
     return False
-
                
 def US18SiblingsSHouldNotMarry(families, individuals):
     for family in families.values():
