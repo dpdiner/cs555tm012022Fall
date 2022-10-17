@@ -3,41 +3,33 @@ import Team_1_Gedcom_Project
 import individual
 import family
 import datetime
+import io
+import sys
 
-def makeTestIndividual():
+def makeTestIndividual(ident = "I1"):
     indiv = individual.individual()
-    indiv.identifier = "I1"
+    indiv.identifier = ident
     indiv.name = "Christie Lee"
     indiv.gender = "F"
     indiv.birthday = datetime.datetime(1983, 4, 7).date()
     indiv.alive = True
-    indiv.spouseFam = "F1"
+    indiv.spouseFam = ["F1"]
     indiv.calculateAge()
     return indiv
 
-def makeTestFamily():
+def makeTestFamily(ident = "F1"):
     fam = family.family()
-    fam.identifier = "F1"
+    fam.identifier = ident
     fam.husbandId = "I1"
     fam.wifeId = "I2"
     return fam
 
 class TestGedcom(unittest.TestCase):
 
-    def test1(self):
-        # create an individual who is still alive
-        individual1 = makeTestIndividual()
-        
-        individuals = {individual1.identifier:individual1}
-        
-        # run the error checker
-        individuals = Team_1_Gedcom_Project.errorCheckIndividuals(individuals)
-        
-        # check that the alive individual's information has not changed
-        self.assertEqual(str(individuals[individual1.identifier].deathday), str(datetime.date.today()))
-    
-        
-    def test2(self):
+    def testUserStory3(self):
+        capturedOutput = io.StringIO() 
+        sys.stdout = capturedOutput
+        fam1 = makeTestFamily()
         # create an individual who is still alive
         individual1 = makeTestIndividual()
         
@@ -48,30 +40,25 @@ class TestGedcom(unittest.TestCase):
         individuals = {individual1.identifier:individual1}
         
         # run the error checker
-        individuals = Team_1_Gedcom_Project.errorCheckIndividuals(individuals)
+        individuals = Team_1_Gedcom_Project.errorCheckIndividuals(individuals, {fam1.identifier:fam1})
         
         # check that the dead individual's information has been updated
-        self.assertEqual(str(individuals[individual1.identifier].birthday), str(datetime.datetime(1, 1, 1).date()))
+        self.assertEqual(capturedOutput.getvalue() , "ERROR: INDVIDUAL: US03: I1: The birthday is after the deathday\n")
+        sys.stdout = sys.__stdout__
 
-    def test3(self):
+    def testUserStory6(self):
+        capturedOutput = io.StringIO() 
+        sys.stdout = capturedOutput
         fam = makeTestFamily()
-        families = {fam.identifier:fam}
-        
-        indiv = makeTestIndividual()
-        
-        individuals = {indiv.identifier:indiv}
-        
-        families = Team_1_Gedcom_Project.errorCheckFamilies(families, individuals)
-        
-        self.assertEqual(str(families[fam.identifier].divorced), str(datetime.datetime(1776, 7, 4).date()))
-    
-    def test4(self):
-        fam = makeTestFamily()
+        fam.married = datetime.datetime(2005, 7, 4).date()
         fam.isDivorced = True
         fam.divorced = datetime.datetime(2010, 7, 4).date()
         families = {fam.identifier:fam}
         
         indiv1 = makeTestIndividual()
+        indiv1.alive = False
+        indiv1.deathday = datetime.datetime(2010, 7, 3).date()
+        indiv1.gender = "M"
         indiv2 = makeTestIndividual()
         indiv2.identifier = "I2"
         
@@ -79,27 +66,9 @@ class TestGedcom(unittest.TestCase):
         
         families = Team_1_Gedcom_Project.errorCheckFamilies(families, individuals)
         
-        self.assertEqual(str(families[fam.identifier].divorced), str(datetime.datetime(2010, 7, 4).date()))
-        
-    def test5(self):
-        
-        fam = makeTestFamily()
-        fam.isDivorced = True
-        fam.divorced = datetime.datetime(2010, 7, 4).date()
-        families = {fam.identifier:fam}
-        
-        indiv1 = makeTestIndividual()
-        indiv2 = makeTestIndividual()
-        indiv2.alive = False
-        indiv2.deathday = datetime.datetime(2010, 1, 4).date()
-        indiv2.identifier = "I2"
-        
-        individuals = {indiv1.identifier:indiv1, indiv2.identifier:indiv2}
-        
-        families = Team_1_Gedcom_Project.errorCheckFamilies(families, individuals)
-        
-        self.assertEqual(str(families[fam.identifier].divorced), str(datetime.datetime(1776, 7, 4).date()))
-        self.assertEqual(families[fam.identifier].isDivorced, False)
+        # check that no error output was made
+        self.assertEqual(capturedOutput.getvalue() , "ERROR: FAMILY: US06: F1: The husband deathday is before the divorce day\n")
+        sys.stdout = sys.__stdout__
 
     def testBigmay(self):
         fam1 = makeTestFamily()
@@ -130,5 +99,64 @@ class TestGedcom(unittest.TestCase):
         individuals = {indiv1.identifier:indiv1, indiv2.identifier:indiv2, indiv3.identifier: indiv3}
         families = Team_1_Gedcom_Project.errorCheckFamilies(families, individuals)
         self.assertEqual(fam1.children, {"I3"})
+
+    def testUserStory27(self):
+    
+        # Create an individual
+        indiv = individual.individual()
+        indiv.identifier = "I1"
+        indiv.name = "Christie Lee"
+        indiv.gender = "F"
+        indiv.birthday = datetime.datetime(1983, 4, 7).date()
+        indiv.alive = False
+        indiv.deathday = datetime.datetime(2022, 10, 17).date()
+        indiv.spouseFam = ["F1"]
+        
+        # check that the individuals age starts off at 0
+        self.assertEqual(indiv.age, 0)
+        
+        # Calculate the age
+        indiv.calculateAge()
+        
+        # check that the individuals age is now 39
+        self.assertEqual(indiv.age, 39)
+        
+    def testUserStory18(self):
+        capturedOutput = io.StringIO() 
+        sys.stdout = capturedOutput
+        fam1 = makeTestFamily()
+        
+        # Create two families where the children of the first family are the spouses in the second
+        individual1 = makeTestIndividual("I1")
+        individual1.gender = "M"
+        individual2 = makeTestIndividual("I2")
+        
+        individual3 = makeTestIndividual("I3")
+        individual3.spouseFam = ["F2"]
+        individual3.childFam = ["F1"]
+        individual3.gender = "M"
+        
+        individual4 = makeTestIndividual("I4")
+        individual4.spouseFam = ["F2"]
+        individual4.childFam = ["F1"]
+        
+        fam1 = makeTestFamily("F1")
+        fam1.children = ["I3", "I4"]
+        fam2 = makeTestFamily("F2")
+        fam2.husbandId = "I3"
+        fam2.wifeId = "I4"
+
+        # Put the families and individuals into lists
+        individuals = {individual1.identifier:individual1, individual2.identifier:individual2, 
+                       individual3.identifier:individual3, individual4.identifier:individual4}
+        families =    {fam1.identifier:fam1, fam2.identifier:fam2}
+
+        # run the error checker
+        individuals = Team_1_Gedcom_Project.US18SiblingsShouldNotMarry(families, individuals)
+        
+        # check that the correct error output was made
+        self.assertEqual(capturedOutput.getvalue() , "ERROR: FAMILY: US18: F1: Two of the children in this family are married to each other\n")
+        sys.stdout = sys.__stdout__
+
 if __name__ == '__main__':
     unittest.main()

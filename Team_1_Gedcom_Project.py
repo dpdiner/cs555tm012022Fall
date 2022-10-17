@@ -271,7 +271,7 @@ def processGedcomFile(file):
     listLivMarried(families,individuals)
     listLivingSingle(families, individuals)
     US10MarriedAfter14(families, individuals)
-    US18SiblingsSHouldNotMarry(families, individuals)
+    US18SiblingsShouldNotMarry(families, individuals)
         
     return [individuals, families]
 
@@ -344,7 +344,7 @@ def areParentsOlder(family, indivs):
         if fatherDiff>80 or motherDiff>60:return True
     return False
                
-def US18SiblingsSHouldNotMarry(families, individuals):
+def US18SiblingsShouldNotMarry(families, individuals):
     for family in families.values():
         for parentFam in families.values():
             if (family.husbandId in parentFam.children) and (family.wifeId in parentFam.children):
