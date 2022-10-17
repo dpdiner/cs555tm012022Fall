@@ -35,8 +35,7 @@ def isTagValid(tag):
 
 
 def isDateGreaterThanCurrentDate(date):
-    currentDate = datetime.date.today()
-    return date > currentDate
+    return date > datetime.date.today()
 
 # Returns is the first date passed to it is smaller than the second. Second date defaults to todays date
 #def isDateSmallerThanOtherDate(firstDate, secondDate = datetime.date.today()):
@@ -264,14 +263,9 @@ def processGedcomFile(file):
               print(husbanddeathdate)
               wifedeathday = individuals[family.wifeId].deathday
               for child in family.children:
-               # print(child)
-                #print(individuals[child].birthday)
-                #print(husbanddeathdate)   
                 if(husbanddeathdate  <= individuals[child].birthday) and (wifedeathdate <= individuals[child].birthday):
-                 # print(True)
                   family.childbdate = True
                 elif(husbanddeathdate  < wifedeathdate ):
-                 # print(True)
                   family.childbdate = True
 
             
@@ -313,7 +307,6 @@ def US10MarriedAfter14(families, individuals):
             printErrorInfo("US10", family.identifier, "The wife was less than 14 years old at their wedding day")
             
 def isIndividualInBigamy(indiv, families):
-    extraVar=""
     if(len(indiv.spouseFam)>1):
         isAlreadyMarried = False
         for spouse in indiv.spouseFam:
@@ -324,7 +317,6 @@ def isIndividualInBigamy(indiv, families):
         return False
 
 def areParentsOlder(family, indivs):
-    extraVar = "" #waste comment
     fatherBirthDate = indivs[family.husbandId].birthday
     motherBirthDate = indivs[family.wifeId].birthday
     for child in family.children:
