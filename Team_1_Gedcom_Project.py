@@ -260,17 +260,11 @@ def processGedcomFile(file):
             for family in families.values():
               familyID = family.identifier
               husbanddeathday = individuals[family.husbandId].deathday
-              print(husbanddeathdate)
               wifedeathday = individuals[family.wifeId].deathday
               for child in family.children:
-               # print(child)
-                #print(individuals[child].birthday)
-                #print(husbanddeathdate)   
                 if(husbanddeathdate  <= individuals[child].birthday) and (wifedeathdate <= individuals[child].birthday):
-                 # print(True)
                   family.childbdate = True
                 elif(husbanddeathdate  < wifedeathdate ):
-                 # print(True)
                   family.childbdate = True
 
             
@@ -301,7 +295,7 @@ def familyFunc(families,individuals):
 
 #User story for List living married
 def listLivMarried(families,individuals):
-    print("#############User story for list living married#################")
+    print("#############User story 30 for list living married#################")
     print("The members who are living and married are:")
     for listAlive in individuals.values():
         if listAlive.alive == True:
@@ -311,7 +305,7 @@ def listLivMarried(families,individuals):
                 
 #User story for List living single
 def listLivingSingle(families,individuals):
-    print("###########User story for living single#############")
+    print("###########User story 31 for living single#############")
     print("The members who are living and single are:")
     for listAliveSingle in individuals.values():
         if listAliveSingle.alive == True:
