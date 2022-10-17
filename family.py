@@ -11,6 +11,13 @@ class family:
         self.wifeId = "N/A"
         self.wifeName = "N/A"
         self.children = []
+        self.Marriagebefordivorce = False
+        self.Marriagebedoredeath = False
+        self.wdday = datetime.datetime(1776, 7, 4).date()
+        self.Hdday = datetime.datetime(1776, 7, 4).date()
+        self.clidernbdate = datetime.datetime(1,1,1).date()
+        self.Marriagebefore14 = False
+        self.childbdate = False
     
     def getIsDivorced(self):
         if self.isDivorced:
