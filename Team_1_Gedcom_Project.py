@@ -313,6 +313,7 @@ def US10MarriedAfter14(families, individuals):
             printErrorInfo("US10", family.identifier, "The wife was less than 14 years old at their wedding day")
             
 def isIndividualInBigamy(indiv, families):
+    extraVar=""
     if(len(indiv.spouseFam)>1):
         isAlreadyMarried = False
         for spouse in indiv.spouseFam:
@@ -323,6 +324,7 @@ def isIndividualInBigamy(indiv, families):
         return False
 
 def areParentsOlder(family, indivs):
+    extraVar = "" #waste comment
     fatherBirthDate = indivs[family.husbandId].birthday
     motherBirthDate = indivs[family.wifeId].birthday
     for child in family.children:
