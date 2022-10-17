@@ -101,34 +101,5 @@ class TestGedcom(unittest.TestCase):
         self.assertEqual(str(families[fam.identifier].divorced), str(datetime.datetime(1776, 7, 4).date()))
         self.assertEqual(families[fam.identifier].isDivorced, False)
 
-    def testBigmay(self):
-        fam1 = makeTestFamily()
-        fam2 = makeTestFamily()
-        indiv1 = makeTestIndividual()
-        indiv2 = makeTestIndividual()
-        indiv3 = makeTestIndividual()
-        indiv1.married = True
-        indiv2.identifier = "I2"
-        indiv3.identifier = "I3"
-        fam2.wifeId = "I3"
-        families = {fam1.identifier:fam1, fam2.identifier: fam2}
-        individuals = {indiv1.identifier:indiv1, indiv2.identifier:indiv2, indiv3.identifier: indiv3}
-        
-        families = Team_1_Gedcom_Project.errorCheckFamilies(families, individuals)
-        self.assertEqual(indiv1.married, True)
-        
-    def testParentsOlderThanChild(self):
-        fam1 = makeTestFamily()
-        indiv1 = makeTestIndividual()
-        indiv2 = makeTestIndividual()
-        indiv3 = makeTestIndividual()
-        indiv1.married = True
-        fam1.children = {"I3"}
-        indiv2.identifier = "I2"
-        indiv3.identifier = "I3"
-        families = {fam1.identifier:fam1}
-        individuals = {indiv1.identifier:indiv1, indiv2.identifier:indiv2, indiv3.identifier: indiv3}
-        families = Team_1_Gedcom_Project.errorCheckFamilies(families, individuals)
-        self.assertEqual(fam1.children, {"I3"})
 if __name__ == '__main__':
     unittest.main()
