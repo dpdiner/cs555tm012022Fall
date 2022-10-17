@@ -351,15 +351,15 @@ def US18SiblingsShouldNotMarry(families, individuals):
                 printErrorInfo("US18", parentFam.identifier, "Two of the children in this family are married to each other")
                  
 def main():
-    #if len(sys.argv) == 2:
+    if len(sys.argv) == 2:
         try:
-            file = open('Team_1_Gedcom_Project_Input.ged', "r")
+            file = open(sys.argv[1], "r")
             output = processGedcomFile(file)
             printOutput(output[0], output[1])
         except OSError:
             print("Error opening GEDCOM FILE.")
-   # else:
-    #    print("Error in number of arguments. Please provide the name of one GEDCOM file.")
+    else:
+        print("Error in number of arguments. Please provide the name of one GEDCOM file.")
     
     
 if __name__ == "__main__":
