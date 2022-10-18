@@ -282,7 +282,7 @@ def US09MBirthBeforeDeathOfParents(families,individuals):
                                                husbanddeathday.day)
         wifedeathday = individuals[family.wifeId].deathday
         for child in family.children:
-            if(husbandDeathPlus9Month  <= individuals[child].birthday) and (wifedeathday <= individuals[child].birthday):
+            if(husbandDeathPlus9Month  <= individuals[child].birthday) or (wifedeathday <= individuals[child].birthday):
                 printErrorInfo("US09", family.identifier, "One of the children was born before a parent died")
                 
 def familyFunc(families,individuals):

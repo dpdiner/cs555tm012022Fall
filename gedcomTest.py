@@ -184,10 +184,10 @@ class TestGedcom(unittest.TestCase):
         families =    {fam1.identifier:fam1}
 
         # run the error checker
-        individuals = Team_1_Gedcom_Project.US18SiblingsShouldNotMarry(families, individuals)
+        individuals = Team_1_Gedcom_Project.US09MBirthBeforeDeathOfParents(families, individuals)
         
         # check that the correct error output was made
-        self.assertEqual(capturedOutput.getvalue() , "ERROR: FAMILY: US18: F1: Two of the children in this family are married to each other\n")
+        self.assertEqual(capturedOutput.getvalue() , "ERROR: FAMILY: US09: F1: One of the children was born before a parent died\n")
         sys.stdout = sys.__stdout__
         
     def testUserStory9Num2(self):
@@ -215,10 +215,10 @@ class TestGedcom(unittest.TestCase):
         families =    {fam1.identifier:fam1}
 
         # run the error checker
-        individuals = Team_1_Gedcom_Project.US18SiblingsShouldNotMarry(families, individuals)
+        individuals = Team_1_Gedcom_Project.US09MBirthBeforeDeathOfParents(families, individuals)
         
         # check that the correct error output was made
-        self.assertEqual(capturedOutput.getvalue() , "ERROR: FAMILY: US18: F1: Two of the children in this family are married to each other\n")
+        self.assertEqual(capturedOutput.getvalue() , "ERROR: FAMILY: US09: F1: One of the children was born before a parent died\n")
         sys.stdout = sys.__stdout__
 if __name__ == '__main__':
     unittest.main()
