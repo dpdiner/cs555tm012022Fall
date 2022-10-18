@@ -22,6 +22,7 @@ def makeTestFamily(ident = "F1"):
     fam.identifier = ident
     fam.husbandId = "I1"
     fam.wifeId = "I2"
+    fam.married = datetime.datetime(2003, 4, 7).date()
     return fam
 
 class TestGedcom(unittest.TestCase):
@@ -157,6 +158,67 @@ class TestGedcom(unittest.TestCase):
         # check that the correct error output was made
         self.assertEqual(capturedOutput.getvalue() , "ERROR: FAMILY: US18: F1: Two of the children in this family are married to each other\n")
         sys.stdout = sys.__stdout__
+        
+    def testUserStory9Num1(self):
+        capturedOutput = io.StringIO() 
+        sys.stdout = capturedOutput
+        fam1 = makeTestFamily()
+        
+        # Create a family with 2 children where child is born after the death of the mother
+        individual1 = makeTestIndividual("I1")
+        individual1.gender = "M"
+        individual2 = makeTestIndividual("I2")
+        individual2.deathday = datetime.datetime(2019, 1, 1).date()
+        individual2.alive = False
+        
+        individual3 = makeTestIndividual("I3")
+        individual3.childFam = ["F1"]
+        individual3.birthday = datetime.datetime(2020, 1, 1).date()
+        
+        fam1 = makeTestFamily("F1")
+        fam1.children = ["I3"]
 
+        # Put the families and individuals into lists
+        individuals = {individual1.identifier:individual1, individual2.identifier:individual2, 
+                       individual3.identifier:individual3}
+        families =    {fam1.identifier:fam1}
+
+        # run the error checker
+        individuals = Team_1_Gedcom_Project.US18SiblingsShouldNotMarry(families, individuals)
+        
+        # check that the correct error output was made
+        self.assertEqual(capturedOutput.getvalue() , "ERROR: FAMILY: US18: F1: Two of the children in this family are married to each other\n")
+        sys.stdout = sys.__stdout__
+        
+    def testUserStory9Num2(self):
+        capturedOutput = io.StringIO() 
+        sys.stdout = capturedOutput
+        fam1 = makeTestFamily()
+        
+        # Create a family with 2 children where child is born more than 9 months after the death of the father
+        individual1 = makeTestIndividual("I1")
+        individual1.gender = "M"
+        individual2 = makeTestIndividual("I2")
+        individual2.deathday = datetime.datetime(2019, 1, 1).date()
+        individual2.alive = False
+        
+        individual3 = makeTestIndividual("I3")
+        individual3.childFam = ["F1"]
+        individual3.birthday = datetime.datetime(2020, 1, 1).date()
+        
+        fam1 = makeTestFamily("F1")
+        fam1.children = ["I3"]
+
+        # Put the families and individuals into lists
+        individuals = {individual1.identifier:individual1, individual2.identifier:individual2, 
+                       individual3.identifier:individual3}
+        families =    {fam1.identifier:fam1}
+
+        # run the error checker
+        individuals = Team_1_Gedcom_Project.US18SiblingsShouldNotMarry(families, individuals)
+        
+        # check that the correct error output was made
+        self.assertEqual(capturedOutput.getvalue() , "ERROR: FAMILY: US18: F1: Two of the children in this family are married to each other\n")
+        sys.stdout = sys.__stdout__
 if __name__ == '__main__':
     unittest.main()

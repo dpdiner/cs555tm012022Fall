@@ -31,7 +31,11 @@ def getDate(dateString):
 def isTagValid(tag):
     return tag in validTags
 
-
+def handleMonthRollover(month):
+    if month == 0:
+        return 12
+    else:
+        return month
 
 def isDateGreaterThanCurrentDate(date):
     currentDate = datetime.date.today()
@@ -256,13 +260,6 @@ def processGedcomFile(file):
         else:
             families[family].Marriagebedoredeath = False
             printErrorInfo("US05", families[family].identifier, "One of the couple died before the marriage")
-    for family in families.values():
-        familyID = family.identifier
-        husbanddeathday = individuals[family.husbandId].deathday
-        wifedeathday = individuals[family.wifeId].deathday
-        for child in family.children:
-            if(husbanddeathdate  <= individuals[child].birthday) and (wifedeathdate <= individuals[child].birthday):
-                printErrorInfo("US09", family.identifier, "One of the children was born before a parent died")
 
     # Run checks
     individuals = errorCheckIndividuals(individuals, families)
@@ -272,9 +269,22 @@ def processGedcomFile(file):
     listLivingSingle(families, individuals)
     US10MarriedAfter14(families, individuals)
     US18SiblingsShouldNotMarry(families, individuals)
+    US09MBirthBeforeDeathOfParents(families, individuals)
         
     return [individuals, families]
-
+    
+def US09MBirthBeforeDeathOfParents(families,individuals):
+    for family in families.values():
+        familyID = family.identifier
+        husbanddeathday = individuals[family.husbandId].deathday
+        husbandDeathPlus9Month = datetime.date(husbanddeathday.year + int(husbanddeathday.month / 12), 
+                                               handleMonthRollover((husbanddeathday.month + 9) %12), 
+                                               husbanddeathday.day)
+        wifedeathday = individuals[family.wifeId].deathday
+        for child in family.children:
+            if(husbandDeathPlus9Month  <= individuals[child].birthday) and (wifedeathday <= individuals[child].birthday):
+                printErrorInfo("US09", family.identifier, "One of the children was born before a parent died")
+                
 def familyFunc(families,individuals):
     for i in families.values():
         childKeys = i.children
@@ -285,7 +295,7 @@ def familyFunc(families,individuals):
             if i.married > birthdays :
                 printErrorInfo("US08", j, "Birthday of child is before the marriage of their parents")
 
-            new_div_date = datetime.date(i.divorced.year + int(i.divorced.month / 12), (i.divorced.month + 9) %12, i.divorced.day)
+            new_div_date = datetime.date(i.divorced.year + int(i.divorced.month / 12), handleMonthRollover((i.divorced.month + 9) %12), i.divorced.day)
             if new_div_date < birthdays and i.isDivorced:
                 printErrorInfo("US08", j, "Birthday of child is after the divorce of their parents")
 
