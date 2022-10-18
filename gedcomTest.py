@@ -30,6 +30,7 @@ class TestGedcom(unittest.TestCase):
     def testUserStory3(self):
         capturedOutput = io.StringIO() 
         sys.stdout = capturedOutput
+        
         fam1 = makeTestFamily()
         # create an individual who is still alive
         individual1 = makeTestIndividual()
@@ -51,6 +52,7 @@ class TestGedcom(unittest.TestCase):
         capturedOutput = io.StringIO() 
         sys.stdout = capturedOutput
         fam = makeTestFamily()
+        
         fam.married = datetime.datetime(2005, 7, 4).date()
         fam.isDivorced = True
         fam.divorced = datetime.datetime(2010, 7, 4).date()
@@ -69,6 +71,28 @@ class TestGedcom(unittest.TestCase):
         
         # check that no error output was made
         self.assertEqual(capturedOutput.getvalue() , "ERROR: FAMILY: US06: F1: The husband deathday is before the divorce day\n")
+        sys.stdout = sys.__stdout__
+
+    def testUserStory10(self):
+        capturedOutput = io.StringIO() 
+        sys.stdout = capturedOutput
+        
+        fam = makeTestFamily("F1")
+        fam.married = datetime.datetime(1985, 7, 4).date()
+        families = {fam.identifier:fam}
+        
+        indiv1 = makeTestIndividual("I1")
+        indiv1.gender = "M"
+        indiv2 = makeTestIndividual("I2")
+        
+        individuals = {indiv1.identifier:indiv1, indiv2.identifier:indiv2}
+        
+        families = Team_1_Gedcom_Project.US10MarriedAfter14(families, individuals)
+        
+        outputString = "ERROR: FAMILY: US10: F1: The husband was less than 14 years old at their wedding day\nERROR: FAMILY: US10: F1: The wife was less than 14 years old at their wedding day\n"
+        
+        # check that no error output was made
+        self.assertEqual(capturedOutput.getvalue() , outputString)
         sys.stdout = sys.__stdout__
 
     def testBigmay(self):
