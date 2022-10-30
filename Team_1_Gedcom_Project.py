@@ -270,6 +270,8 @@ def processGedcomFile(file):
     US10MarriedAfter14(families, individuals)
     US18SiblingsShouldNotMarry(families, individuals)
     US09MBirthBeforeDeathOfParents(families, individuals)
+    US17ParentsShouldNotMarryDescendants(families, individuals)
+    US25UniqueFirstNameInFamily(families, individuals)
         
     return [individuals, families]
     
@@ -359,6 +361,40 @@ def US18SiblingsShouldNotMarry(families, individuals):
         for parentFam in families.values():
             if (family.husbandId in parentFam.children) and (family.wifeId in parentFam.children):
                 printErrorInfo("US18", parentFam.identifier, "Two of the children in this family are married to each other")
+
+def US17ParentsShouldNotMarryDescendants(families, individuals):
+    for individual in individuals.values():
+        descendants = getDescendantsRecursive(individual, families, individuals)
+        for descendant in descendants:
+            for spouse in individual.spouseFam:
+                if spouse in individuals[descendant].spouseFam:
+                    printErrorInfo("US17", spouse, "One of the two parents in this family are a descendant of the other")
+
+def US25UniqueFirstNameInFamily(families, individuals):
+    for family in families.values():
+        childInfo = []
+        for child in family.children:
+            childInfo.append([individuals[child].name.split()[0], individuals[child].birthday])
+        numChildrenLeft = len(childInfo) - 1
+        while numChildrenLeft > 0:
+            for num in range(numChildrenLeft):
+                if(childInfo[num]==childInfo[numChildrenLeft]):
+                    printErrorInfo("US25", family.identifier, "Two of the children in this family named " + childInfo[num][0] + " have the same name and birthday")
+            numChildrenLeft -= 1
+
+def getDescendantsRecursive(individual, families, individuals):
+    descendants = []
+    for marriedFamily in individual.spouseFam:
+        children = families[marriedFamily].children
+        if children != []:
+            for child in children:
+                descendants.append(child)
+        for child in children:
+            descend = getDescendantsRecursive(individuals[child], families, individuals)
+            if descend != []:
+                for descendant in descend:
+                    descendants.append(descendant)
+    return descendants
                  
 def main():
     if len(sys.argv) == 2:
