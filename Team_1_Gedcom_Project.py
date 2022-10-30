@@ -270,6 +270,7 @@ def processGedcomFile(file):
     US10MarriedAfter14(families, individuals)
     US18SiblingsShouldNotMarry(families, individuals)
     US09MBirthBeforeDeathOfParents(families, individuals)
+    US25UniqueFirstNameInFamily(families, individuals)
         
     return [individuals, families]
     
@@ -359,6 +360,21 @@ def US18SiblingsShouldNotMarry(families, individuals):
         for parentFam in families.values():
             if (family.husbandId in parentFam.children) and (family.wifeId in parentFam.children):
                 printErrorInfo("US18", parentFam.identifier, "Two of the children in this family are married to each other")
+
+def US17ParentsShouldNotMarryDescendants(Families, individuals):
+    return 1
+
+def US25UniqueFirstNameInFamily(families, individuals):
+    for family in families.values():
+        childInfo = []
+        for child in family.children:
+            childInfo.append([individuals[child].name.split()[0], individuals[child].birthday])
+        numChildrenLeft = len(childInfo) - 1
+        while numChildrenLeft > 0:
+            for num in range(numChildrenLeft):
+                if(childInfo[num]==childInfo[numChildrenLeft]):
+                    printErrorInfo("US25", family.identifier, "Two of the children in this family named " + childInfo[num][0] + " have the same name and birthday")
+            numChildrenLeft -= 1
                  
 def main():
     if len(sys.argv) == 2:

@@ -244,5 +244,37 @@ class TestGedcom(unittest.TestCase):
         # check that the correct error output was made
         self.assertEqual(capturedOutput.getvalue() , "ERROR: FAMILY: US09: F1: One of the children was born before a parent died\n")
         sys.stdout = sys.__stdout__
+        
+    def testUserStory25(self):
+        capturedOutput = io.StringIO() 
+        sys.stdout = capturedOutput
+        
+        # Create one family where the children have the same name and birthday
+        individual1 = makeTestIndividual("I1")
+        individual1.gender = "M"
+        individual2 = makeTestIndividual("I2")
+        
+        individual3 = makeTestIndividual("I3")
+        individual3.childFam = ["F1"]
+        individual3.birthday = datetime.datetime(2014, 4, 7).date()
+        
+        individual4 = makeTestIndividual("I4")
+        individual4.childFam = ["F1"]
+        individual4.birthday = datetime.datetime(2014, 4, 7).date()
+        
+        fam1 = makeTestFamily("F1")
+        fam1.children = ["I3", "I4"]
+
+        # Put the families and individuals into lists
+        individuals = {individual1.identifier:individual1, individual2.identifier:individual2, 
+                       individual3.identifier:individual3, individual4.identifier:individual4}
+        families =    {fam1.identifier:fam1}
+
+        # run the error checker
+        individuals = Team_1_Gedcom_Project.US25UniqueFirstNameInFamily(families, individuals)
+        
+        # check that the correct error output was made
+        self.assertEqual(capturedOutput.getvalue() , "ERROR: FAMILY: US25: F1: Two of the children in this family named Christie have the same name and birthday\n")
+        sys.stdout = sys.__stdout__
 if __name__ == '__main__':
     unittest.main()
