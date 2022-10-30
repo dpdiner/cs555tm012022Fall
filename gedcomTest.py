@@ -244,6 +244,41 @@ class TestGedcom(unittest.TestCase):
         # check that the correct error output was made
         self.assertEqual(capturedOutput.getvalue() , "ERROR: FAMILY: US09: F1: One of the children was born before a parent died\n")
         sys.stdout = sys.__stdout__
+                
+    def testUserStory17(self):
+        capturedOutput = io.StringIO() 
+        sys.stdout = capturedOutput
+        
+        # Create two families where the child of the first is married to one of their parents
+        individual1 = makeTestIndividual("I1")
+        individual1.gender = "M"
+        individual2 = makeTestIndividual("I2")
+        individual2.spouseFam.append("F2")
+        
+        individual3 = makeTestIndividual("I3")
+        individual3.spouseFam = ["F2"]
+        individual3.childFam = ["F1"]
+        individual3.gender = "M"
+        individual.birthday = datetime.datetime(2003, 4, 7).date()
+        
+        fam1 = makeTestFamily("F1")
+        fam1.children = ["I3"]
+        
+        fam2 = makeTestFamily("F2")
+        fam2.husbandId = "I3"
+        fam2.wifeId = "I2"
+
+        # Put the families and individuals into lists
+        individuals = {individual1.identifier:individual1, individual2.identifier:individual2, 
+                       individual3.identifier:individual3}
+        families =    {fam1.identifier:fam1, fam2.identifier:fam2}
+
+        # run the error checker
+        individuals = Team_1_Gedcom_Project.US17ParentsShouldNotMarryDescendants(families, individuals)
+        
+        # check that the correct error output was made
+        self.assertEqual(capturedOutput.getvalue() , "ERROR: FAMILY: US17: F2: One of the two parents in this family are a descendant of the other\n")
+        sys.stdout = sys.__stdout__
         
     def testUserStory25(self):
         capturedOutput = io.StringIO() 
@@ -276,5 +311,6 @@ class TestGedcom(unittest.TestCase):
         # check that the correct error output was made
         self.assertEqual(capturedOutput.getvalue() , "ERROR: FAMILY: US25: F1: Two of the children in this family named Christie have the same name and birthday\n")
         sys.stdout = sys.__stdout__
+        
 if __name__ == '__main__':
     unittest.main()
