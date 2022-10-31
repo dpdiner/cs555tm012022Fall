@@ -221,9 +221,12 @@ def processGedcomFile(file):
             # stop reading in for the previous family or individual and add them to teh appropriate dictionary
             if readingIndividual:
                 newIndividual = readIndividual(linesList)
+                if areIdsUnique(individuals, newIndividual): printErrorInfo("US22", "ID already exists")
+                if areNameAndDOBUnique(individuals, newIndividual): printErrorInfo("US23", "Name/DOB not unique")
                 individuals[newIndividual.identifier] = newIndividual
             if readingFamily:
                 newFamily = readFamily(linesList)
+                if areIdsUnique(families,newFamily): printErrorInfo("US22", "ID already exists")
                 families[newFamily.identifier] = newFamily
             
             # start reading in for a new individual
@@ -310,7 +313,20 @@ def listLivMarried(families,individuals):
             aliveMarried = listAlive.spouseFam
             if len(aliveMarried) !=0:
                 print(listAlive.name)
-                
+
+def areIdsUnique(indiv, newIndiv):
+    check = set()
+    for individual in indiv:
+        check.add(str(individual))
+    return newIndiv in check
+               
+def areNameAndDOBUnique(indiv, newIndiv):
+    checkName = set()
+    checkDate = set()
+    for individual in indiv:
+        checkName.add(str(individual))
+        checkDate.add(str(individual))
+    return newIndiv in checkName and newIndiv in checkDate
 #User story for List living single
 def listLivingSingle(families,individuals):
     print("###########User story 31 for living single#############")
