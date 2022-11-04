@@ -176,7 +176,7 @@ def printOutput(individuals, families):
         indPT.add_row([ind.identifier, ind.name, ind.gender, ind.getBirthday(), ind.age, ind.alive, ind.getDeathday(), ind.getChildFam(), ind.getSpouseFam()])
     for family in sorted(families.keys()):
         fam = families[family]
-        if len(fam.children()) < 15:
+        if len(fam.children) < 15:
             printErrorInfo("US15", fam.identifier, "This family has more than 15 siblings")
         famPT.add_row([fam.identifier, fam.married, fam.getIsDivorced(), fam.Marriagebefordivorce, fam.Marriagebedoredeath, fam.husbandId, fam.husbandName, fam.wifeId, fam.wifeName, fam.getChildren()])
         
