@@ -176,7 +176,7 @@ def printOutput(individuals, families):
         indPT.add_row([ind.identifier, ind.name, ind.gender, ind.getBirthday(), ind.age, ind.alive, ind.getDeathday(), ind.getChildFam(), ind.getSpouseFam()])
     for family in sorted(families.keys()):
         fam = families[family]
-        if len(fam.children()) < 15:
+        if len(fam.children) > 15:
             printErrorInfo("US15", fam.identifier, "This family has more than 15 siblings")
         famPT.add_row([fam.identifier, fam.married, fam.getIsDivorced(), fam.Marriagebefordivorce, fam.Marriagebedoredeath, fam.husbandId, fam.husbandName, fam.wifeId, fam.wifeName, fam.getChildren()])
         
@@ -272,6 +272,8 @@ def processGedcomFile(file):
     familyFunc(families,individuals)
     listLivMarried(families,individuals)
     listLivingSingle(families, individuals)
+    listDeceased(families,individuals)
+    listOrphans(families,individuals)
     US10MarriedAfter14(families, individuals)
     US18SiblingsShouldNotMarry(families, individuals)
     US09MBirthBeforeDeathOfParents(families, individuals)
@@ -338,6 +340,59 @@ def listLivingSingle(families,individuals):
             listSingle = listAliveSingle.spouseFam
             if len(listSingle) == 0:
                 print(listAliveSingle.name)
+                
+#User story for List deceased
+def listDeceased(families,individuals):
+    print("List of deceased:")
+    for deceased in individuals.values():
+        if deceased.alive == False:
+            print(deceased.name)
+
+#User story for listing orphans
+def listOrphans(families,individuals):
+    notAliveList = []
+    for dead in individuals.values():
+        if dead.alive ==False:
+            notAliveList.append(dead.identifier)
+    husb = []
+    wify = []
+    #getting husband's id
+    for gethusbId in families.values():
+        husb.append(gethusbId.husbandId)
+    for getwifeId in families.values():
+        wify.append(getwifeId.wifeId)
+    dadList = []
+    momList = []
+    dadAndMomList = []
+    childrenList = []
+    childrenList2 = []
+    #creating a list for people who are not alive and getting their IDs in a list.
+    for people in notAliveList:
+        for pplHusb in husb:
+            if people == pplHusb:
+                dadList.append(people)
+        for pplwife in wify:
+            if people == pplwife:
+                momList.append(pplwife)
+    #joing both the lists together
+    dadAndMomList = dadList + momList
+    for dadAndMom in dadAndMomList:
+        for husInFam in families.values():
+            if dadAndMom == husInFam.husbandId:
+                childrenList.append(husInFam.children)
+        for wifeInFam in families.values():
+            if dadAndMom == wifeInFam.wifeId:
+                childrenList.append(wifeInFam.children)
+    for offSpring1 in childrenList:
+        if offSpring1 not in childrenList2:
+            childrenList2.append(offSpring1)
+    childrenList3 = [val for sublist in childrenList2 for val in sublist]
+    for offSpring2 in childrenList3:
+        for o in individuals.values():
+            if offSpring2 == o.identifier:
+                if o.age < 18:
+                    print("These are the orphan children names:")
+                    print(o.name)
   
 def US10MarriedAfter14(families, individuals):
     for family in families.values():
