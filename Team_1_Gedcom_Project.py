@@ -278,6 +278,8 @@ def processGedcomFile(file):
     US18SiblingsShouldNotMarry(families, individuals)
     US09MBirthBeforeDeathOfParents(families, individuals)
     US17ParentsShouldNotMarryDescendants(families, individuals)
+    US21CorrectGenderRoles(families, individuals)
+    US24UniqueFamilyBySpouses(families, individuals)
     US25UniqueFirstNameInFamily(families, individuals)
         
     return [individuals, families]
@@ -468,7 +470,28 @@ def getDescendantsRecursive(individual, families, individuals):
                 for descendant in descend:
                     descendants.append(descendant)
     return descendants
-                 
+
+def US21CorrectGenderRoles(families, individuals):
+    for family in families.values():
+        if individuals[family.husbandId].gender == "F":
+            printErrorInfo("US21", family.identifier, "The husband of the family is female.")
+        if individuals[family.wifeId].gender == "M":
+            printErrorInfo("US21", family.identifier, "The wife of the family is male.")
+     
+def US24UniqueFamilyBySpouses(families, individuals):
+    familyHash = {}
+    for family in families.values():
+        familyHash[family.identifier] = family.husbandName + family.wifeName + str(family.married)
+    numFamiliesLeft = len(familyHash.keys()) - 1
+    familHashKeys = list(familyHash.keys())
+    while numFamiliesLeft > 0:
+        for num in range(numFamiliesLeft):
+            if(familyHash[familHashKeys[num]]==familyHash[familHashKeys[numFamiliesLeft]]):
+                duelFamilyIdentifier = familHashKeys[num] + ", " + familHashKeys[numFamiliesLeft]
+                printErrorInfo("US24", duelFamilyIdentifier, "These two families have the names of spouses and wedding days.")
+        numFamiliesLeft -= 1
+        
+
 def main():
     if len(sys.argv) == 2:
         try:
