@@ -171,7 +171,7 @@ class TestGedcom(unittest.TestCase):
         fam2.husbandId = "I3"
         fam2.wifeId = "I4"
 
-        # Put the families and individuals into lists
+        # Put the families and individuals into dicitonaries
         individuals = {individual1.identifier:individual1, individual2.identifier:individual2, 
                        individual3.identifier:individual3, individual4.identifier:individual4}
         families =    {fam1.identifier:fam1, fam2.identifier:fam2}
@@ -202,7 +202,7 @@ class TestGedcom(unittest.TestCase):
         fam1 = makeTestFamily("F1")
         fam1.children = ["I3"]
 
-        # Put the families and individuals into lists
+        # Put the families and individuals into dicitonaries
         individuals = {individual1.identifier:individual1, individual2.identifier:individual2, 
                        individual3.identifier:individual3}
         families =    {fam1.identifier:fam1}
@@ -233,7 +233,7 @@ class TestGedcom(unittest.TestCase):
         fam1 = makeTestFamily("F1")
         fam1.children = ["I3"]
 
-        # Put the families and individuals into lists
+        # Put the families and individuals into dicitonaries
         individuals = {individual1.identifier:individual1, individual2.identifier:individual2, 
                        individual3.identifier:individual3}
         families =    {fam1.identifier:fam1}
@@ -268,7 +268,7 @@ class TestGedcom(unittest.TestCase):
         fam2.husbandId = "I3"
         fam2.wifeId = "I2"
 
-        # Put the families and individuals into lists
+        # Put the families and individuals into dicitonaries
         individuals = {individual1.identifier:individual1, individual2.identifier:individual2, 
                        individual3.identifier:individual3}
         families =    {fam1.identifier:fam1, fam2.identifier:fam2}
@@ -300,7 +300,7 @@ class TestGedcom(unittest.TestCase):
         fam1 = makeTestFamily("F1")
         fam1.children = ["I3", "I4"]
 
-        # Put the families and individuals into lists
+        # Put the families and individuals into dicitonaries
         individuals = {individual1.identifier:individual1, individual2.identifier:individual2, 
                        individual3.identifier:individual3, individual4.identifier:individual4}
         families =    {fam1.identifier:fam1}
@@ -332,7 +332,7 @@ class TestGedcom(unittest.TestCase):
         fam1 = makeTestFamily("F1")
         fam1.children = ["I3", "I4"]
 
-        # Put the families and individuals into lists
+        # Put the families and individuals into dicitonaries
         individuals = {individual1.identifier:individual1, individual2.identifier:individual2, 
                        individual3.identifier:individual3, individual4.identifier:individual4}
         families =    {fam1.identifier:fam1}
@@ -343,5 +343,63 @@ class TestGedcom(unittest.TestCase):
         # check that the correct error output was made
         self.assertNotEqual(capturedOutput.getvalue() , "ERROR: US23: Name/DOB not unique")
         sys.stdout = sys.__stdout__
+        
+    def testUserStory21(self):
+        capturedOutput = io.StringIO() 
+        sys.stdout = capturedOutput
+        
+        # Create one family where the spouses have the "wrong" gender roles
+        individual1 = makeTestIndividual("I1")
+        individual2 = makeTestIndividual("I2")
+        individual2.gender = "M"
+
+        fam1 = makeTestFamily("F1")
+
+        # Put the families and individuals into dicitonaries
+        individuals = {individual1.identifier:individual1, individual2.identifier:individual2}
+        families =    {fam1.identifier:fam1}
+
+        # run the error checker
+        individuals = Team_1_Gedcom_Project.US21CorrectGenderRoles(families, individuals)
+        
+        # check that the correct error output was made
+        self.assertEqual(capturedOutput.getvalue() , "ERROR: FAMILY: US21: F1: The husband of the family is female.\nERROR: FAMILY: US21: F1: The wife of the family is male.\n")
+        sys.stdout = sys.__stdout__
+    
+    def testUserStory24(self):
+        capturedOutput = io.StringIO() 
+        sys.stdout = capturedOutput
+        
+        # Create 3 families where 2 of them have the same wedding date and spouse names
+        individual1 = makeTestIndividual("I1")
+        individual1.gender = "M"
+        individual2 = makeTestIndividual("I2")
+        
+        individual3 = makeTestIndividual("I3")
+        individual3.gender = "M"
+        individual4 = makeTestIndividual("I4")
+        
+        individual5 = makeTestIndividual("I5")
+        individual5.gender = "M"
+        individual6 = makeTestIndividual("I6")
+
+        fam1 = makeTestFamily("F1")
+        fam2 = makeTestFamily("F2")
+        fam2.married = datetime.datetime(2004, 4, 7).date()
+        fam3 = makeTestFamily("F3")
+
+        # Put the families and individuals into dicitonaries
+        individuals = {individual1.identifier:individual1, individual2.identifier:individual2,
+                       individual3.identifier:individual3, individual4.identifier:individual4,
+                       individual5.identifier:individual5, individual6.identifier:individual6}
+        families =    {fam1.identifier:fam1, fam2.identifier:fam2, fam3.identifier:fam3}
+
+        # run the error checker
+        individuals = Team_1_Gedcom_Project.US24UniqueFamilyBySpouses(families, individuals)
+        
+        # check that the correct error output was made
+        self.assertEqual(capturedOutput.getvalue() , "ERROR: FAMILY: US24: F1, F3: These two families have the names of spouses and wedding days.\n")
+        sys.stdout = sys.__stdout__
+        
 if __name__ == '__main__':
     unittest.main()
