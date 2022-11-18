@@ -400,6 +400,12 @@ class TestGedcom(unittest.TestCase):
         # check that the correct error output was made
         self.assertEqual(capturedOutput.getvalue() , "ERROR: FAMILY: US24: F1, F3: These two families have the names of spouses and wedding days.\n")
         sys.stdout = sys.__stdout__
+
+    def testAcceptValidDate(self):
+        date = Team_1_Gedcom_Project.getDate("1971")
+        self.assertEqual(datetime.datetime(1971, 1, 1).date(), date)
         
+    def testRejectInValidDate(self):
+        self.assertEqual(Team_1_Gedcom_Project.getDate("43 SEP 1971"), datetime.date.today())
 if __name__ == '__main__':
     unittest.main()
