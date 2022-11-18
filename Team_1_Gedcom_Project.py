@@ -21,12 +21,29 @@ def printErrorInfo(story, Id, message):
 def getDate(dateString):
     monthDict = {"JAN":1, "FEB":2, "MAR":3, "APR":4, "MAY":5, "JUN":6, 
                  "JUL":7, "AUG":8, "SEP":9, "OCT":10, "NOV":11, "DEC":12}
-    date = dateString.split()
-    day = int(date[0])
-    month = monthDict[date[1]]
-    year = int(date[2])
-    return datetime.datetime(year, month, day).date()
 
+    date = dateString.split()
+    # User story 41 and 42
+    if len(date) == 1 :
+        day = 1
+        month=1
+        year = int(date[0])
+    elif len(date) ==2: 
+        day = int(1)
+        month = monthDict[date[0]]
+        year = int(date[1])
+    else: 
+        day = int(date[0])
+        month = monthDict[date[1]]
+        year = int(date[2])
+    try: 
+        date = datetime.datetime(year, month, day).date()
+        
+    except ValueError:
+        printErrorInfo("US 42", ": ", "Invalid date provided")
+        date = datetime.date.today()
+        
+    return date
 # takes in a Gedcom tag and returns if it is valid
 def isTagValid(tag):
     return tag in validTags
@@ -284,6 +301,9 @@ def processGedcomFile(file):
         
     return [individuals, families]
     
+# def checkIfDateValid:
+    
+
 def US09MBirthBeforeDeathOfParents(families,individuals):
     for family in families.values():
         familyID = family.identifier
