@@ -4,6 +4,7 @@ import family
 import datetime
 from prettytable import PrettyTable
 from dateutil.relativedelta import relativedelta
+import re
 
 validTags = ["INDI", "NAME", "SEX", "BIRT", "DEAT", "FAMC", "MARR", "HUSB", 
              "WIFE", "CHIL", "DIV", "DATE", "HEAD", "TRLR", "NOTE", "FAMS", 
@@ -21,29 +22,12 @@ def printErrorInfo(story, Id, message):
 def getDate(dateString):
     monthDict = {"JAN":1, "FEB":2, "MAR":3, "APR":4, "MAY":5, "JUN":6, 
                  "JUL":7, "AUG":8, "SEP":9, "OCT":10, "NOV":11, "DEC":12}
-
     date = dateString.split()
-    # User story 41 and 42
-    if len(date) == 1 :
-        day = 1
-        month=1
-        year = int(date[0])
-    elif len(date) ==2: 
-        day = int(1)
-        month = monthDict[date[0]]
-        year = int(date[1])
-    else: 
-        day = int(date[0])
-        month = monthDict[date[1]]
-        year = int(date[2])
-    try: 
-        date = datetime.datetime(year, month, day).date()
-        
-    except ValueError:
-        printErrorInfo("US 42", ": ", "Invalid date provided")
-        date = datetime.date.today()
-        
-    return date
+    day = int(date[0])
+    month = monthDict[date[1]]
+    year = int(date[2])
+    return datetime.datetime(year, month, day).date()
+
 # takes in a Gedcom tag and returns if it is valid
 def isTagValid(tag):
     return tag in validTags
@@ -298,12 +282,72 @@ def processGedcomFile(file):
     US21CorrectGenderRoles(families, individuals)
     US24UniqueFamilyBySpouses(families, individuals)
     US25UniqueFirstNameInFamily(families, individuals)
-        
+    getLastNameByID(individuals,families)
+    upcominganniversary(families) 
+    upcomingbday(individuals)
     return [individuals, families]
-    
-# def checkIfDateValid:
-    
+def upcomingbday(individuals):
+  inpt = PrettyTable()
+  inpt.field_names = ["ID", "Birth Day"]
+  today = datetime.datetime.now()
+  for individual in sorted(individuals.keys()):
+    ind = individuals[individual]
+    #print(ind.getBirthday())
+    if ind.alive == True:
+      bday = ind.getBirthday()
+      date_object = datetime.datetime.strptime(bday, '%Y-%m-%d').date()
+      #print(bday)
+      #print(type(bday))
+      year_1 = today.year
+      bday_curr_year = date_object.replace(year= year_1)
+      dt2 = datetime.datetime.combine(bday_curr_year, datetime.time(0, 0))
+      if today < dt2 and dt2 < today + relativedelta(days=30):
+        inpt.add_row([ind.identifier, bday])
+  print("Upcoming Birth days")
+  print(inpt)    
 
+def upcominganniversary(families):
+  fpt = PrettyTable()
+  fpt.field_names = ["ID", "Anniversery Date"]
+  today = datetime.datetime.now()
+  for family in sorted(families.keys()):
+    fam = families[family]
+    if fam.getIsDivorced() == "" or fam.getIsDivorced() == "NA":
+      Married = fam.married
+      date_object = datetime.datetime.strptime(Married, '%Y-%m-%d').date()
+      year_1 = today.year
+      ann_curr_year = date_object.replace(year= year_1)
+      dt2 = datetime.datetime.combine(ann_curr_year, datetime.time(0, 0))
+      if today < dt2 and dt2 < today + relativedelta(days=30) :
+        fpt.add_row([fam.identifier, Married])
+  print("Upcoming Anniversary")
+  print(fpt)
+def getLastNameByID(individuals,families):
+  inPT = PrettyTable()
+  inPT.field_names = ["ID", "Last NAME"]
+  for family in sorted(families.keys()):
+    fam = families[family]
+    id = fam.husbandId
+    for individual in sorted(individuals.keys()):
+      ind = individuals[individual]
+      id_ind =ind.identifier
+      if id == id_ind:
+        name = re.search('/(.*)/', ind.name)
+        last_name_hus = name.group(1)
+    for i in fam.children:      
+      for individual in sorted(individuals.keys()):
+        ind = individuals[individual]
+        id_ind =ind.identifier        
+        if ind.gender == "M" and id_ind == i:
+          #print(i)
+          #print(id)
+          name = re.search('/(.*)/', ind.name)
+          last_name_child = name.group(1)
+          if last_name_child != last_name_hus :
+            print(fam.identifier + " have last name different")
+          else:
+            print(fam.identifier + " have same  Last name ")
+    
 def US09MBirthBeforeDeathOfParents(families,individuals):
     for family in families.values():
         familyID = family.identifier
@@ -513,15 +557,15 @@ def US24UniqueFamilyBySpouses(families, individuals):
         
 
 def main():
-    if len(sys.argv) == 2:
+    #if len(sys.argv) == 2:
         try:
-            file = open(sys.argv[1], "r")
+            file = open("/Users/vaishnavimacherla/Desktop/cs555tm012022Fall/Team_1_Gedcom_Project_Input.ged", "r")
             output = processGedcomFile(file)
             printOutput(output[0], output[1])
         except OSError:
             print("Error opening GEDCOM FILE.")
-    else:
-        print("Error in number of arguments. Please provide the name of one GEDCOM file.")
+    #else:
+     #   print("Error in number of arguments. Please provide the name of one GEDCOM file.")
     
     
 if __name__ == "__main__":
