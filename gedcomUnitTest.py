@@ -101,7 +101,12 @@ class TestGedcom(unittest.TestCase):
         
         self.assertIsNotNone(capturedOutput.getvalue() , "Age is more than 150\n")
         sys.stdout = sys.__stdout__
-
+    def test1(self):
+      self.assertNotEqual(Team_1_Gedcom_Project.upcomingbday, 0)
+    def test2(self):
+      self.assertNotEqual(Team_1_Gedcom_Project.upcominganniversary,0)
+    def test3(self):
+        self.assertIsNotNone(Team_1_Gedcom_Project.getLastNameByID,"Gilbert")
 
 
 
