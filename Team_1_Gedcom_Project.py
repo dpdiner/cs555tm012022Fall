@@ -4,6 +4,7 @@ import family
 import datetime
 from prettytable import PrettyTable
 from dateutil.relativedelta import relativedelta
+import re
 
 validTags = ["INDI", "NAME", "SEX", "BIRT", "DEAT", "FAMC", "MARR", "HUSB", 
              "WIFE", "CHIL", "DIV", "DATE", "HEAD", "TRLR", "NOTE", "FAMS", 
@@ -38,12 +39,13 @@ def getDate(dateString):
         year = int(date[2])
     try: 
         date = datetime.datetime(year, month, day).date()
-        
+
     except ValueError:
         printErrorInfo("US 42", ": ", "Invalid date provided")
         date = datetime.date.today()
-        
+
     return date
+
 # takes in a Gedcom tag and returns if it is valid
 def isTagValid(tag):
     return tag in validTags
@@ -298,12 +300,72 @@ def processGedcomFile(file):
     US21CorrectGenderRoles(families, individuals)
     US24UniqueFamilyBySpouses(families, individuals)
     US25UniqueFirstNameInFamily(families, individuals)
-        
+    getLastNameByID(individuals,families)
+    upcominganniversary(families) 
+    upcomingbday(individuals)
     return [individuals, families]
-    
-# def checkIfDateValid:
-    
+def upcomingbday(individuals):
+  inpt = PrettyTable()
+  inpt.field_names = ["ID", "Birth Day"]
+  today = datetime.datetime.now()
+  for individual in sorted(individuals.keys()):
+    ind = individuals[individual]
+    #print(ind.getBirthday())
+    if ind.alive == True:
+      bday = ind.getBirthday()
+      date_object = datetime.datetime.strptime(bday, '%Y-%m-%d').date()
+      #print(bday)
+      #print(type(bday))
+      year_1 = today.year
+      bday_curr_year = date_object.replace(year= year_1)
+      dt2 = datetime.datetime.combine(bday_curr_year, datetime.time(0, 0))
+      if today < dt2 and dt2 < today + relativedelta(days=30):
+        inpt.add_row([ind.identifier, bday])
+  print("Upcoming Birth days")
+  print(inpt)    
 
+def upcominganniversary(families):
+  fpt = PrettyTable()
+  fpt.field_names = ["ID", "Anniversery Date"]
+  today = datetime.datetime.now()
+  for family in sorted(families.keys()):
+    fam = families[family]
+    if fam.getIsDivorced() == "" or fam.getIsDivorced() == "NA":
+      Married = fam.married
+      date_object = datetime.datetime.strptime(Married, '%Y-%m-%d').date()
+      year_1 = today.year
+      ann_curr_year = date_object.replace(year= year_1)
+      dt2 = datetime.datetime.combine(ann_curr_year, datetime.time(0, 0))
+      if today < dt2 and dt2 < today + relativedelta(days=30) :
+        fpt.add_row([fam.identifier, Married])
+  print("Upcoming Anniversary")
+  print(fpt)
+def getLastNameByID(individuals,families):
+  inPT = PrettyTable()
+  inPT.field_names = ["ID", "Last NAME"]
+  for family in sorted(families.keys()):
+    fam = families[family]
+    id = fam.husbandId
+    for individual in sorted(individuals.keys()):
+      ind = individuals[individual]
+      id_ind =ind.identifier
+      if id == id_ind:
+        name = re.search('/(.*)/', ind.name)
+        last_name_hus = name.group(1)
+    for i in fam.children:      
+      for individual in sorted(individuals.keys()):
+        ind = individuals[individual]
+        id_ind =ind.identifier        
+        if ind.gender == "M" and id_ind == i:
+          #print(i)
+          #print(id)
+          name = re.search('/(.*)/', ind.name)
+          last_name_child = name.group(1)
+          if last_name_child != last_name_hus :
+            print(fam.identifier + " have last name different")
+          else:
+            print(fam.identifier + " have same  Last name ")
+    
 def US09MBirthBeforeDeathOfParents(families,individuals):
     for family in families.values():
         familyID = family.identifier
