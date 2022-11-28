@@ -6,6 +6,7 @@ import datetime
 import io
 import sys
 #UnitTests By Rakesh Balaji
+#user Stories for age less than 150
 def makeTestIndividual():
     indiv = individual.individual()
     indiv.identifier = "I1"
@@ -100,7 +101,7 @@ class TestGedcom(unittest.TestCase):
         
         self.assertIsNotNone(capturedOutput.getvalue() , "Age is more than 150\n")
         sys.stdout = sys.__stdout__
-    
+
     def testUserStory08(self):
         fam1 = makeTestFamily()
         indiv1 = makeTestIndividual()
@@ -292,10 +293,6 @@ class TestGedcom(unittest.TestCase):
         families = Team_1_Gedcom_Project.listOrphans(families, individuals)
         self.assertNotEqual(capturedOutput.getvalue() ," These are the orphan children names:\nJezebel /Gilbert/\n")
         sys.stdout = sys.__stdout__
-
-
-
-
 
 if __name__ == '__main__':
     unittest.main()
