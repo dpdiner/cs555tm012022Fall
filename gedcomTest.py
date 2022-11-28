@@ -419,6 +419,7 @@ class TestGedcom(unittest.TestCase):
         self.assertFalse(b)
     def testlastname(self):
         a = makeTestIndividual()
+        a.name = "Christie /Lee/"
         c = {'I1':a}
         d = makeTestFamily()
         e = {'F1':d}
@@ -426,13 +427,4 @@ class TestGedcom(unittest.TestCase):
         self.assertIsNone(f,'None')
 if __name__ == '__main__':
     unittest.main()
-    #s = unittest.TestLoader().loadTestsFromTestCase(TestGedcom)
-    #unittest.TextTestRunner().run(s)
 
-
-
-
-
-#if __name__ == '__main__':
- # s = unittest.TestLoader().loadTestsFromTestCase(TestGedcom)
-  #unittest.TextTestRunner().run(s)
