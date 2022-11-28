@@ -407,5 +407,32 @@ class TestGedcom(unittest.TestCase):
         
     def testRejectInValidDate(self):
         self.assertEqual(Team_1_Gedcom_Project.getDate("43 SEP 1971"), datetime.date.today())
+    def testupcomingAnniversary(self):
+        a =makeTestFamily()
+        c = {'F1':a}
+        b = Team_1_Gedcom_Project.upcominganniversary(c)
+        self.assertFalse(b)
+    def testupcomingbirthdays(self):
+        a=makeTestIndividual()
+        c={"I1":a}
+        b=Team_1_Gedcom_Project.upcomingbday(c)
+        self.assertFalse(b)
+    def testlastname(self):
+        a = makeTestIndividual()
+        c = {'I1':a}
+        d = makeTestFamily()
+        e = {'F1':d}
+        f = Team_1_Gedcom_Project.getLastNameByID(c,e)
+        self.assertIsNone(f,'None')
 if __name__ == '__main__':
     unittest.main()
+    #s = unittest.TestLoader().loadTestsFromTestCase(TestGedcom)
+    #unittest.TextTestRunner().run(s)
+
+
+
+
+
+#if __name__ == '__main__':
+ # s = unittest.TestLoader().loadTestsFromTestCase(TestGedcom)
+  #unittest.TextTestRunner().run(s)
