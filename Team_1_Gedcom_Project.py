@@ -2,6 +2,8 @@ import sys
 import individual
 import family
 import datetime
+from datetime import date
+from datetime import timedelta
 from prettytable import PrettyTable
 from dateutil.relativedelta import relativedelta
 import re
@@ -288,6 +290,7 @@ def processGedcomFile(file):
     # Run checks
     individuals = errorCheckIndividuals(individuals, families)
     families = errorCheckFamilies(families, individuals)
+    
     familyFunc(families,individuals)
     listLivMarried(families,individuals)
     listLivingSingle(families, individuals)
@@ -303,6 +306,9 @@ def processGedcomFile(file):
     getLastNameByID(individuals,families)
     upcominganniversary(families) 
     upcomingbday(individuals)
+    listRecentBirths(families,individuals)
+    listMultipleBirths(families,individuals)
+
     return [individuals, families]
 def upcomingbday(individuals):
   inpt = PrettyTable()
@@ -477,6 +483,68 @@ def listOrphans(families,individuals):
                 if o.age < 18:
                     print("These are the orphan children names:")
                     print(o.name)
+
+#List Recent Births User Story
+def listRecentBirths(families,individuals):
+    calculateDays = date.today() - timedelta(days=30)
+    for indBirth in individuals.values():
+        individualsBirthdays = indBirth.birthday
+        if individualsBirthdays <= date.today() and individualsBirthdays >= calculateDays:
+            print("These are the individual(s) were born in the last 30 Days")
+            print(indBirth.name)
+
+#List multiple births in a GEDCOM file
+def listMultipleBirths(families,individuals):
+    birthdayArray = []
+    uniqueList = []
+    duplicateList = []
+    sameBdayList = []
+    fatherList = []
+    for birthOfIndi1 in individuals.values():
+        dayOfBirth = birthOfIndi1.birthday
+        birthdayArray.append(dayOfBirth)
+    for i in birthdayArray:
+        if i not in uniqueList:
+            uniqueList.append(i)
+        elif i not in duplicateList:
+            duplicateList.append(i)
+    # print(duplicateList)
+    for m in individuals.values():
+        for n in duplicateList:
+            if n == m.birthday:
+                # print(m.name)
+                sameBdayList.append(m.identifier)
+    # print("same bday list", sameBdayList)
+    for p in sameBdayList:
+        for l in families.values():
+            for a in l.children:
+                if p == a:
+                    fatherList.append(l.husbandName)
+    # print(fatherList)
+    fatherUniqueList = []
+    fatherDuplicateList =[]
+    for q in fatherList:
+        if q not in fatherUniqueList:
+            fatherUniqueList.append(q)
+        elif q not in fatherDuplicateList:
+            fatherDuplicateList.append(q)
+    # print("This is the duplicate list",fatherDuplicateList)
+    multipleBirthsChildren = []
+    for y in families.values():
+        for t in fatherDuplicateList:
+            if y.husbandName == t:
+                multipleBirthsChildren.append(y.children)
+    # print("multiplebirth children",multipleBirthsChildren)
+    multipleBirths = []
+    for f in individuals.values():
+        for g in multipleBirthsChildren:
+            for b in g:
+                if f.identifier == b:
+                    multipleBirths.append(f.name)
+    # print(multipleBirths)
+    print("These are the Multiple Births in the GEDCOM file:")
+    for d in multipleBirths:
+        print(d)
   
 def US10MarriedAfter14(families, individuals):
     for family in families.values():
