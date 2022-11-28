@@ -1,0 +1,63 @@
+ERROR: INDVIDUAL: US07: I1: The person is over 150
+ERROR: FAMILY: US11: Jezebel /Gilbert/: Bigamy exists for this individual
+ERROR: INDVIDUAL: US03: I6: The birthday is after the deathday
+ERROR: FAMILY: US11: Katherine /Gioletti/: Bigamy exists for this individual
+ERROR: INDVIDUAL: US01: I11: The birthday is after the current day
+ERROR: FAMILY: US12: F1: Parents are older than child
+ERROR: FAMILY: US12: F2: Parents are older than child
+ERROR: FAMILY: US06: F4: The husband deathday is before the divorce day
+ERROR: FAMILY: US02: F4: The husband birthday is after the marriage day
+ERROR: INDVIDUAL: US08: I16: Birthday of child is before the marriage of their parents
+ERROR: INDVIDUAL: US08: I16: Birthday of child is before the marriage of their parents
+ERROR: INDVIDUAL: US08: I16: Birthday of child is before the marriage of their parents
+ERROR: INDVIDUAL: US08: I16: Birthday of child is before the marriage of their parents
+#############User story 30 for list living married#################
+The members who are living and married are:
+Jezebel /Gilbert/
+Katherine /Gioletti/
+RAJRANI /CHAWLA/
+###########User story 31 for living single#############
+The members who are living and single are:
+Larry /Honepin/
+Mary /Honepin/
+Lucas /Garbutt/
+Micheal /Manturin/
+Lily /Gilbert-Gioletti/
+ERROR: FAMILY: US10: F4: The husband was less than 14 years old at their wedding day
+ERROR: FAMILY: US10: F4: The wife was less than 14 years old at their wedding day
+ERROR: FAMILY: US10: F6: The wife was less than 14 years old at their wedding day
+ERROR: FAMILY: US18: F1: Two of the children in this family are married to each other
+ERROR: FAMILY: US09: F2: One of the children was born before a parent died
+Individuals
++-----+-------------------------+--------+------------+------+-------+------------+-------+--------------+
+|  ID |           NAME          | GENDER |  BIRTHDAY  | AGE  | ALIVE |   DEATH    | CHILD |    SPOUSE    |
++-----+-------------------------+--------+------------+------+-------+------------+-------+--------------+
+|  I1 |    Francis /Gilbert/    |   M    | 1392-09-07 | 565  | False | 1958-08-04 |  N/A  |     {F1}     |
+| I10 |     Larry /Honepin/     |   M    | 1954-03-13 |  68  |  True |    N/A     |  {F2} |     N/A      |
+| I11 |      Mary /Honepin/     |   F    | 2954-03-13 | -932 |  True |    N/A     |  {F2} |     N/A      |
+| I12 |     Lucas /Garbutt/     |   M    | 1970-11-09 |  51  |  True |    N/A     |  {F5} |     N/A      |
+| I13 |    Micheal /Manturin/   |   M    | 1955-08-18 |  67  |  True |    N/A     |  {F4} |     N/A      |
+| I14 | Lily /Gilbert-Gioletti/ |   F    | 1983-05-18 |  39  |  True |    N/A     |  {F3} |     N/A      |
+| I15 |     RAJRANI /CHAWLA/    |   F    | 1954-03-13 |  68  |  True |    N/A     |  N/A  |     {F6}     |
+| I16 |    AuRevoir /Gilbert/   |   F    | 1928-07-17 |  70  | False | 1998-10-27 |  {F1} |     {F7}     |
+|  I2 |     Bonnie /Jepson/     |   F    | 1899-09-04 |  65  | False | 1965-04-12 |  N/A  |     {F1}     |
+|  I3 |    Francine /Gilbert/   |   F    | 1927-02-14 |  78  | False | 2006-01-16 |  {F1} |     {F2}     |
+|  I4 |    Bonjour /Gilbert/    |   M    | 1928-07-17 |  70  | False | 1998-10-27 |  {F1} |     {F7}     |
+|  I5 |    Jezebel /Gilbert/    |   F    | 1938-01-13 |  84  |  True |    N/A     |  {F1} | {F3, F6, F4} |
+|  I6 |      Ned /Manturin/     |   M    | 1990-07-08 | -35  | False | 1955-12-11 |  N/A  |     {F4}     |
+|  I7 |   Katherine /Gioletti/  |   F    | 1940-10-18 |  81  |  True |    N/A     |  N/A  |   {F3, F5}   |
+|  I8 |     Frank /Garbutt/     |   M    | 1938-10-30 |  37  | False | 1975-11-05 |  N/A  |     {F5}     |
+|  I9 |     Jerry /Honepin/     |   M    | 1920-04-04 |  68  | False | 1989-03-16 |  N/A  |     {F2}     |
++-----+-------------------------+--------+------------+------+-------+------------+-------+--------------+
+Families
++----+------------+------------+------------------------+----------------------+------------+-------------------+---------+----------------------+-------------------+
+| ID |  MARRIED   |  DIVORCED  | MARRIED BEFORE DIVORCE | MARRIED BEFORE DEATH | HUSBAND ID |    HUSBAND NAME   | WIFE ID |      WIFE NAME       |      CHILDREN     |
++----+------------+------------+------------------------+----------------------+------------+-------------------+---------+----------------------+-------------------+
+| F1 | 1962-10-15 |    N/A     |         False          |         True         |     I1     | Francis /Gilbert/ |    I2   |   Bonnie /Jepson/    | {I3, I4, I5, I16} |
+| F2 | 1950-10-12 |    N/A     |         False          |         True         |     I9     |  Jerry /Honepin/  |    I3   |  Francine /Gilbert/  |     {I10, I11}    |
+| F3 | 1980-09-07 |    N/A     |         False          |         True         |     I5     | Jezebel /Gilbert/ |    I7   | Katherine /Gioletti/ |       {I14}       |
+| F4 | 1905-04-18 | 1961-04-18 |         False          |         True         |     I6     |   Ned /Manturin/  |    I5   |  Jezebel /Gilbert/   |       {I13}       |
+| F5 | 1965-07-03 |    N/A     |         False          |         True         |     I8     |  Frank /Garbutt/  |    I7   | Katherine /Gioletti/ |       {I12}       |
+| F6 | 1965-07-03 |    N/A     |         False          |         True         |     I5     | Jezebel /Gilbert/ |   I15   |   RAJRANI /CHAWLA/   |       {I12}       |
+| F7 | 1965-07-03 |    N/A     |         False          |         True         |     I4     | Bonjour /Gilbert/ |   I16   |  AuRevoir /Gilbert/  |        N/A        |
++----+------------+------------+------------------------+----------------------+------------+-------------------+---------+----------------------+-------------------+
